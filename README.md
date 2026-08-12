@@ -13,6 +13,9 @@ xcodegen generate
 open MyApp.xcodeproj
 ```
 
+`xcodegen generate` phải chạy lại sau khi thêm hoặc di chuyển **bất kỳ** file
+nào — đây là một app target, nên không có SPM tự phát hiện file mới.
+
 Hoặc kiểm tất cả bằng một lệnh:
 
 ```bash
@@ -23,28 +26,39 @@ Hoặc kiểm tất cả bằng một lệnh:
 
 Một vertical slice đầy đủ, đã build và test được:
 
-- **`FeatureOrder`** — list (search, pull-to-refresh, empty, error, offline) và
+- **`Features/Order`** — list (search, pull-to-refresh, empty, error, offline) và
   detail (seed từ list hoặc fetch theo id, huỷ đơn có xác nhận).
-- **`FeatureAuth`** — sign-in với validate ở use case, `DebouncedField`.
+- **`Features/Auth`** — sign-in với validate ở use case, `DebouncedField`.
+- **`DesignSystem/Modifiers`** + **`Components`** — modifier và view dùng chung:
+  `onFirstAppear`, `alert(_:onDismiss:)`, `cardStyle`, `dismissKeyboardOnTap`,
+  `LoadableContent`, `PrimaryButtonStyle`.
 - 19 test qua ba tầng: Domain thuần, Data qua `KVMockNetworkSession`, ViewModel
   qua `KVRouterSpy`.
 
 ## Kiến trúc
 
 ```
-AppFoundation   Foundation only            Loadable · AlertState · AppError · AppEnvironment
-Domain          → AppFoundation            Entities · Repository protocols · UseCases · ports
-Data            → Domain + KVNetworkit     DTO · Endpoints · Repository impls · mapping
-AppDI           → Domain + Data + KVDIKit  mọi dependency key, và nơi duy nhất
-DesignSystem    → AppFoundation + KVToast  token (asset catalog) · component · toast style
-Feature*        → Domain + DesignSystem + AppDI + KVRouter{Core,Kit}
-App             → tất cả                   composition root
+Core/           Loadable · AlertState · AppError · AppEnvironment
+Domain/         Entities · Repository protocol · Services (port) · UseCase
+Data/           DTO · Endpoint · Interceptor · Mapping · Local · Repository impl · Testing
+DI/             mọi KVDependencyKey, và nơi duy nhất
+DesignSystem/   Foundation (token) · Components · Modifiers · Toast
+Features/       Auth/ · Order/          một folder là một luồng, không phải một màn
+App/            entry · Navigation · Bootstrap · Session · Resources
+Tests/          DomainTests · DataTests · FeatureTests
 ```
 
-Graph trong `Packages/AppModules/Package.swift` **là** kiến trúc: một tầng không
-import được cái mà target của nó không depend, nên sai là build error. Những luật
-compiler không diễn đạt được thì `tools/check-arch.sh` kiểm, và CI fail nếu vi
-phạm.
+Một app target, phân tầng bằng folder. Hướng phụ thuộc chạy Core → Domain → Data
+→ DI → DesignSystem → Features → App, không có mũi tên nào quay lại.
+
+Vì tất cả nằm trong một module, **compiler không chặn** vi phạm phân tầng: file
+cùng module thấy nhau không cần `import`. `tools/check-arch.sh` là thứ thay thế,
+và nó suy luật từ chính source — đọc tên type khai báo dưới `Data/` rồi tìm chúng
+ở nơi không được biết, nên không cần danh sách bảo trì tay.
+
+`tools/check-arch-selftest.sh` chứng minh 8 luật đó **vẫn bắt được vi phạm**: nó
+tạo một vi phạm thật cho từng luật rồi kiểm tra script có fail. Một luật im lặng
+ngừng khớp còn tệ hơn không có luật.
 
 ## Bốn luật
 
@@ -71,9 +85,10 @@ xem `ios-architecture/references/ios16.md`.
 ## Lệnh
 
 ```bash
-xcodegen generate            # sau khi thêm/di chuyển file trong App/
-./tools/check-arch.sh        # luật phân tầng
-./tools/verify.sh            # tất cả
+xcodegen generate                  # sau khi thêm/di chuyển BẤT KỲ file nào
+./tools/check-arch.sh              # 8 luật phân tầng
+./tools/check-arch-selftest.sh     # chứng minh 8 luật đó còn hiệu lực
+./tools/verify.sh                  # tất cả + build + test
 ```
 
 Đừng sửa `MyApp.xcodeproj` bằng tay — nó được sinh ra và đã gitignore.

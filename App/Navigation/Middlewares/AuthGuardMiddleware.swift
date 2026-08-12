@@ -1,8 +1,6 @@
 import Foundation
 import KVRouterKit
 import KVRouterCore
-import FeatureAuth
-import FeatureOrder
 
 /// Blocks navigation into signed-in-only screens in one place, rather than with
 /// an `if` at the top of every screen that would each render a different thing

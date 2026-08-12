@@ -15,25 +15,20 @@ configs:
 settings:
   base:
     SWIFT_VERSION: "6.0"
-    # The whole point of the layering is that the compiler enforces it. Complete
-    # checking is what makes `Sendable` mistakes build errors instead of crashes
-    # under load.
+    # Sendable mistakes become build errors instead of crashes under load.
     SWIFT_STRICT_CONCURRENCY: complete
     ENABLE_USER_SCRIPT_SANDBOXING: "NO"
 
 packages:
-  # Local: the app's own modules. The dependency graph inside AppModules is the
-  # architecture — see Packages/AppModules/Package.swift.
-  AppModules:
-    path: Packages/AppModules
-  # Remote: only the products the *app target* uses directly. Everything else is
-  # reached through AppModules, which already declares what each layer may see.
   KVRouter:
     url: https://github.com/khanhVu-ops/KVRouter.git
     from: 3.1.0
   KVDIKit:
     url: https://github.com/khanhVu-ops/KVDIKit.git
     from: 1.0.0
+  KVNetworkit:
+    url: https://github.com/khanhVu-ops/KVNetworkit.git
+    from: 2.0.0
   KVToastKit:
     url: https://github.com/khanhVu-ops/KVToastKit.git
     from: 1.0.0
@@ -45,29 +40,27 @@ targets:
   MyApp:
     type: application
     platform: iOS
+    # One target, layered by folder. The order here is the dependency direction
+    # the code is meant to follow — Core outward to Features — and
+    # tools/check-arch.sh is what actually enforces it, since a single module has
+    # no import statements between its own files to lean on.
     sources:
+      - path: Core
+      - path: Domain
+      - path: Data
+      - path: DI
+      - path: DesignSystem
+      - path: Features
       - path: App
     dependencies:
-      - package: AppModules
-        product: AppFoundation
-      - package: AppModules
-        product: Domain
-      - package: AppModules
-        product: Data
-      - package: AppModules
-        product: AppDI
-      - package: AppModules
-        product: DesignSystem
-      - package: AppModules
-        product: FeatureOrder
-      - package: AppModules
-        product: FeatureAuth
       - package: KVRouter
         product: KVRouterKit
       - package: KVRouter
         product: KVRouterCore
       - package: KVDIKit
         product: KVDIKit
+      - package: KVNetworkit
+        product: KVNetworkit
       - package: KVToastKit
         product: KVToastKit
       - package: KVLoggingKit
@@ -88,6 +81,9 @@ targets:
         INFOPLIST_FILE: App/Resources/Info.plist
         TARGETED_DEVICE_FAMILY: "1"
         CODE_SIGN_STYLE: Automatic
+        # Required for `@testable import MyApp`. Debug only — testability
+        # disables some optimisations and should not ship.
+        ENABLE_TESTABILITY: "YES"
       configs:
         Debug:
           API_BASE_URL: https://api-dev.example.com
@@ -95,22 +91,40 @@ targets:
         Staging:
           API_BASE_URL: https://api-staging.example.com
           ENVIRONMENT_NAME: staging
+          ENABLE_TESTABILITY: "NO"
         Release:
           API_BASE_URL: https://api.example.com
           ENVIRONMENT_NAME: production
+          ENABLE_TESTABILITY: "NO"
+
+  MyAppTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: Tests
+    dependencies:
+      - target: MyApp
+      - package: KVRouter
+        product: KVRouterTesting
+      - package: KVNetworkit
+        product: KVNetworkit
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: "YES"
 
 schemes:
-  # Declaring any scheme turns off XcodeGen's implicit per-target scheme, so the
-  # everyday Debug one is spelled out here too.
   MyApp:
     build:
       targets:
         MyApp: all
+        MyAppTests: [test]
     run:
       config: Debug
     test:
       config: Debug
       gatherCoverageData: true
+      targets:
+        - MyAppTests
   MyApp-Staging:
     build:
       targets:

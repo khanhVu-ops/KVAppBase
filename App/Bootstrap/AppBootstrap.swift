@@ -3,7 +3,6 @@ import KVLoggingKit
 import KVLoggingLocal
 import KVLoggingSecurity
 import KVLoggingNetwork
-import AppFoundation
 
 enum AppBootstrap {
 

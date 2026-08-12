@@ -4,11 +4,6 @@ import KVToastKit
 import KVLoggingKit
 import KVLoggingSwiftUI
 import KVDIKit
-import AppDI
-import AppFoundation
-import Data
-import DesignSystem
-import Domain
 
 @main
 struct MyApp: App {
@@ -22,6 +17,21 @@ struct MyApp: App {
     // The composition root. Everything the app is wired from happens here, once,
     // in an order that matters:
     init() {
+        // A hosted test bundle launches the app first, so this runs before every
+        // test run. Tests build their own dependencies explicitly and need none
+        // of the below — booting it would make them slower and dependent on the
+        // keychain and the network stack.
+        if AppEnvironment.isRunningTests {
+            let logger = LogClient.disabled
+            let toastCenter = KVToastCenter()
+            let router = KVAppRouter()
+            self.logger = logger
+            self.toastCenter = toastCenter
+            _router = StateObject(wrappedValue: router)
+            _session = State(wrappedValue: SessionController(router: router, logger: logger))
+            return
+        }
+
         // 1. Logging first, so anything that fails after this point is recorded.
         let logger = AppBootstrap.startLogging()
 
