@@ -178,6 +178,42 @@ else
     pass "All dependency keys live in DI/"
 fi
 
+# ---------------------------------------------------------------------------
+# 9. No empty folders.
+#    A folder left behind after its contents moved is a claim about the
+#    architecture that is no longer true. `Domain/Errors/` survived here for a
+#    while after AppError moved to Core/, and it read as "domain errors live
+#    here" to anyone opening the tree.
+# ---------------------------------------------------------------------------
+hits=$(find Core Domain Data DI DesignSystem Features App Tests -type d -empty 2>/dev/null)
+if [ -n "$hits" ]; then
+    fail "Folder rỗng — dọn hoặc dùng đi" "$hits"
+else
+    pass "Không có folder rỗng"
+fi
+
+# ---------------------------------------------------------------------------
+# 10. The structure documented in README.md matches the disk.
+#     This is the drift that matters most, and the one nothing usually catches:
+#     a rule file describing a layout the source no longer has teaches everyone
+#     who reads it — human or agent — the wrong thing, before they ever look at
+#     the code. Compare the top-level folders README claims with what exists.
+# ---------------------------------------------------------------------------
+documented=$(grep -oE '^[A-Z][A-Za-z]*/' README.md | tr -d '/' | sort -u)
+actual=$(find . -maxdepth 1 -type d \
+    -not -name '.' -not -name '.git' -not -name 'tools' -not -name '*.xcodeproj' \
+    | sed 's|^\./||' | sort -u)
+missing=$(comm -23 <(echo "$actual") <(echo "$documented"))
+extra=$(comm -13 <(echo "$actual") <(echo "$documented"))
+if [ -n "$missing" ] || [ -n "$extra" ]; then
+    message=""
+    [ -n "$missing" ] && message="$message"$'có trên đĩa nhưng README không nhắc: '"$(echo "$missing" | tr '\n' ' ')"$'\n'
+    [ -n "$extra" ] && message="$message"$'README nhắc nhưng không có trên đĩa: '"$(echo "$extra" | tr '\n' ' ')"
+    fail "README.md mô tả cấu trúc khác thực tế" "$message"
+else
+    pass "README.md khớp cấu trúc trên đĩa"
+fi
+
 echo
 if [ "$failures" -gt 0 ]; then
     printf '\033[31m%d architecture rule(s) violated.\033[0m\n' "$failures"

@@ -83,6 +83,35 @@ probe "8 · Dependency key ngoài DI/" \
     Features/Order/OrderRoute.swift \
     "enum __ProbeKey: KVDependencyKey { static let liveValue = 0 }"
 
+# Luật 9 và 10 không kiểm được bằng cách thêm một dòng vào file Swift.
+probe_dir() {
+    mkdir -p Domain/__probe
+    if ./tools/check-arch.sh >/dev/null 2>&1; then
+        printf '\033[31m✗\033[0m 9 · Folder rỗng — vi phạm KHÔNG bị bắt\n'
+        fail_count=$((fail_count + 1))
+    else
+        printf '\033[32m✓\033[0m 9 · Folder rỗng\n'
+        pass_count=$((pass_count + 1))
+    fi
+    rmdir Domain/__probe
+}
+probe_dir
+
+probe_readme() {
+    cp README.md "$tmp/readme"
+    mkdir -p __ProbeLayer && touch __ProbeLayer/keep.swift
+    if ./tools/check-arch.sh >/dev/null 2>&1; then
+        printf '\033[31m✗\033[0m 10 · README lệch đĩa — vi phạm KHÔNG bị bắt\n'
+        fail_count=$((fail_count + 1))
+    else
+        printf '\033[32m✓\033[0m 10 · README lệch đĩa\n'
+        pass_count=$((pass_count + 1))
+    fi
+    rm -rf __ProbeLayer
+    cp "$tmp/readme" README.md
+}
+probe_readme
+
 echo
 if [ "$fail_count" -gt 0 ]; then
     printf '\033[31m%d/%d luật không bắt được vi phạm.\033[0m\n' "$fail_count" "$((pass_count + fail_count))"

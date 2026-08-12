@@ -40,10 +40,11 @@ Một vertical slice đầy đủ, đã build và test được:
 ```
 Core/           Loadable · AlertState · AppError · AppEnvironment
 Domain/         Entities · Repository protocol · Services (port) · UseCase
-Data/           DTO · Endpoint · Interceptor · Mapping · Local · Repository impl · Testing
+Data/           DTO · Network/{Endpoints,Interceptors} · Mapping · Local · Repositories · Testing
 DI/             mọi KVDependencyKey, và nơi duy nhất
-DesignSystem/   Foundation (token) · Components · Modifiers · Toast
+DesignSystem/   Foundation (token) · Components · Modifiers · Toast · Resources/Tokens.xcassets
 Features/       Auth/ · Order/          một folder là một luồng, không phải một màn
+                mỗi feature có <Name>Route.swift ở gốc folder của nó
 App/            entry · Navigation · Bootstrap · Session · Resources
 Tests/          DomainTests · DataTests · FeatureTests
 ```
