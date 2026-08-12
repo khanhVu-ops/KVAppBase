@@ -1,0 +1,125 @@
+name: MyApp
+
+options:
+  bundleIdPrefix: com.example
+  deploymentTarget:
+    iOS: "16.0"
+  createIntermediateGroups: true
+  generateEmptyDirectories: false
+
+configs:
+  Debug: debug
+  Staging: release
+  Release: release
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    # The whole point of the layering is that the compiler enforces it. Complete
+    # checking is what makes `Sendable` mistakes build errors instead of crashes
+    # under load.
+    SWIFT_STRICT_CONCURRENCY: complete
+    ENABLE_USER_SCRIPT_SANDBOXING: "NO"
+
+packages:
+  # Local: the app's own modules. The dependency graph inside AppModules is the
+  # architecture — see Packages/AppModules/Package.swift.
+  AppModules:
+    path: Packages/AppModules
+  # Remote: only the products the *app target* uses directly. Everything else is
+  # reached through AppModules, which already declares what each layer may see.
+  KVRouter:
+    url: https://github.com/khanhVu-ops/KVRouter.git
+    from: 3.1.0
+  KVDIKit:
+    url: https://github.com/khanhVu-ops/KVDIKit.git
+    from: 1.0.0
+  KVToastKit:
+    url: https://github.com/khanhVu-ops/KVToastKit.git
+    from: 1.0.0
+  KVLoggingKit:
+    url: https://github.com/khanhVu-ops/KVLoggingKit.git
+    from: 1.0.0
+
+targets:
+  MyApp:
+    type: application
+    platform: iOS
+    sources:
+      - path: App
+    dependencies:
+      - package: AppModules
+        product: AppFoundation
+      - package: AppModules
+        product: Domain
+      - package: AppModules
+        product: Data
+      - package: AppModules
+        product: AppDI
+      - package: AppModules
+        product: DesignSystem
+      - package: AppModules
+        product: FeatureOrder
+      - package: AppModules
+        product: FeatureAuth
+      - package: KVRouter
+        product: KVRouterKit
+      - package: KVRouter
+        product: KVRouterCore
+      - package: KVDIKit
+        product: KVDIKit
+      - package: KVToastKit
+        product: KVToastKit
+      - package: KVLoggingKit
+        product: KVLoggingKit
+      - package: KVLoggingKit
+        product: KVLoggingSwiftUI
+      - package: KVLoggingKit
+        product: KVLoggingLocal
+      - package: KVLoggingKit
+        product: KVLoggingSecurity
+      - package: KVLoggingKit
+        product: KVLoggingNetwork
+      - package: KVLoggingKit
+        product: KVLoggingConsole
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.myapp
+        INFOPLIST_FILE: App/Resources/Info.plist
+        TARGETED_DEVICE_FAMILY: "1"
+        CODE_SIGN_STYLE: Automatic
+      configs:
+        Debug:
+          API_BASE_URL: https://api-dev.example.com
+          ENVIRONMENT_NAME: debug
+        Staging:
+          API_BASE_URL: https://api-staging.example.com
+          ENVIRONMENT_NAME: staging
+        Release:
+          API_BASE_URL: https://api.example.com
+          ENVIRONMENT_NAME: production
+
+schemes:
+  # Declaring any scheme turns off XcodeGen's implicit per-target scheme, so the
+  # everyday Debug one is spelled out here too.
+  MyApp:
+    build:
+      targets:
+        MyApp: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+      gatherCoverageData: true
+  MyApp-Staging:
+    build:
+      targets:
+        MyApp: all
+    run:
+      config: Staging
+  MyApp-Release:
+    build:
+      targets:
+        MyApp: all
+    run:
+      config: Release

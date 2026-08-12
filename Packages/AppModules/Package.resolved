@@ -1,0 +1,60 @@
+{
+  "originHash" : "2df49b8bb8330e801f5ef692313b4b102629a3018b094be52e5d75f0b8c8c32f",
+  "pins" : [
+    {
+      "identity" : "kvdikit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/khanhVu-ops/KVDIKit.git",
+      "state" : {
+        "revision" : "00288e7b28a6c9f6b13ef59b08e0cda45471b364",
+        "version" : "1.0.0"
+      }
+    },
+    {
+      "identity" : "kvloggingkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/khanhVu-ops/KVLoggingKit.git",
+      "state" : {
+        "revision" : "d7e4c86e91a71743354ce911923b87e9cd46fabb",
+        "version" : "1.0.0"
+      }
+    },
+    {
+      "identity" : "kvnetworkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/khanhVu-ops/KVNetworkit.git",
+      "state" : {
+        "revision" : "b048ef9fe20b859e621688bda28ada8ac94cf1b9",
+        "version" : "2.0.0"
+      }
+    },
+    {
+      "identity" : "kvrouter",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/khanhVu-ops/KVRouter.git",
+      "state" : {
+        "revision" : "500195407be64f2a42958d0decd47d43c170faf2",
+        "version" : "3.1.0"
+      }
+    },
+    {
+      "identity" : "kvtoastkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/khanhVu-ops/KVToastKit.git",
+      "state" : {
+        "revision" : "7c53a573b5d9e0eeee301be924f26ee1adb8ffc3",
+        "version" : "1.0.0"
+      }
+    },
+    {
+      "identity" : "swiftui-introspect",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/siteline/swiftui-introspect",
+      "state" : {
+        "revision" : "26986a57e31c813f98262ddb62d4b07d40008535",
+        "version" : "26.0.1"
+      }
+    }
+  ],
+  "version" : 3
+}

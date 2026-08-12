@@ -1,0 +1,75 @@
+import SwiftUI
+import KVRouterKit
+import KVToastKit
+import KVLoggingKit
+import KVLoggingSwiftUI
+import KVDIKit
+import AppDI
+import AppFoundation
+import Data
+import DesignSystem
+import Domain
+
+@main
+struct MyApp: App {
+
+    @StateObject private var router: KVAppRouter
+    @State private var session: SessionController
+
+    private let toastCenter: KVToastCenter
+    private let logger: LogClient
+
+    // The composition root. Everything the app is wired from happens here, once,
+    // in an order that matters:
+    init() {
+        // 1. Logging first, so anything that fails after this point is recorded.
+        let logger = AppBootstrap.startLogging()
+
+        // 2. The main-actor objects the app owns for its whole life.
+        let toastCenter = KVToastCenter()
+        let router = KVAppRouter(middlewares: [
+            AuthGuardMiddleware(isSignedIn: { KeychainTokenStore.shared.accessToken != nil }),
+            NavigationLogMiddleware(logger: logger)
+        ])
+
+        // 3. Fill the app layer of the dependency graph. Keys whose live value
+        //    needs one of the objects above cannot resolve before this runs —
+        //    everything else already resolves on read, so order is not a trap.
+        KVDependencies.prepare {
+            $0.logger = logger
+            $0.apiClient = APIClientFactory.make(
+                environment: .current,
+                tokenStore: KeychainTokenStore.shared,
+                logger: logger
+            )
+            $0.toast = .live(toastCenter)
+            $0.router = router
+        }
+
+        self.logger = logger
+        self.toastCenter = toastCenter
+        _router = StateObject(wrappedValue: router)
+        _session = State(wrappedValue: SessionController(router: router, logger: logger))
+
+        logger.info("Application launched", category: "lifecycle")
+    }
+
+    var body: some Scene {
+        WindowGroup {
+            KVRouterHost(router: router, defaultTransition: .system) {
+                RootView(session: session)
+            }
+            .appRoutes()
+            // Deep links are parsed by the app and pushed as ordinary typed
+            // routes, so a linked screen is indistinguishable from a tapped one
+            // — same registry, same middleware, same restoration.
+            .onOpenURL { url in
+                guard let route = AppDeepLink.route(for: url) else { return }
+                router.setPath(AppDeepLink.stack(for: route))
+            }
+            .kvToast(style: AppToast.style, center: toastCenter)
+            .kvLogging(logger)
+            .task { await session.observeSessionChanges() }
+        }
+    }
+}

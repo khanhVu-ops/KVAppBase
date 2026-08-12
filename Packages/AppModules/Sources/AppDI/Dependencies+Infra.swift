@@ -1,0 +1,94 @@
+import Foundation
+import KVDIKit
+import KVNetworkit
+import KVLoggingKit
+import KVRouterCore
+import AppFoundation
+import Domain
+import Data
+
+// Every dependency key in the app is declared in this module and nowhere else.
+// Features read keys; only the composition root writes them. That is what keeps
+// a feature from reaching into `Data` for a concrete type.
+
+// MARK: - Logger
+
+/// `.disabled` is a working logger that drops everything, so a bootstrap failure
+/// costs logs rather than a crash. `AppBootstrap` replaces it at launch.
+public enum LoggerKey: KVDependencyKey {
+    public static let liveValue: LogClient = .disabled
+    public static let testValue: LogClient = .disabled
+}
+
+// MARK: - Token store
+
+public enum TokenStoreKey: KVDependencyKey {
+    public static let liveValue: any TokenStoring = KeychainTokenStore.shared
+    /// Tests must not touch the real keychain: it is shared per device, so one
+    /// test's tokens would leak into the next and make order matter.
+    public static let testValue: any TokenStoring = InMemoryTokenStore()
+}
+
+// MARK: - API client
+
+public enum APIClientKey: KVDependencyKey {
+    public static let liveValue: any KVAPIClientProtocol = {
+        @KVDependency(\.tokenStore) var tokenStore
+        @KVDependency(\.logger) var logger
+        return APIClientFactory.make(
+            environment: .current,
+            tokenStore: tokenStore,
+            logger: logger
+        )
+    }()
+
+    public static let testValue: any KVAPIClientProtocol = KVMockAPIClient()
+}
+
+// MARK: - Router
+
+/// The router is a `@MainActor` object that only exists once `App.init` has run,
+/// so the key ships a placeholder and `KVDependencies.prepare` swaps in the real
+/// one. The placeholder asserts rather than silently doing nothing, because a
+/// navigation that quietly never happens is the hardest bug in this area.
+public enum RouterKey: KVDependencyKey {
+    public static let liveValue: any KVRouting = UnhostedRouter()
+    public static let testValue: any KVRouting = UnhostedRouter()
+}
+
+// MARK: - Toast
+
+public enum ToastKey: KVDependencyKey {
+    public static let liveValue: ToastService = .noop
+    public static let testValue: ToastService = .noop
+}
+
+// MARK: - Values
+
+public extension KVDependencyValues {
+
+    var logger: LogClient {
+        get { self[LoggerKey.self] }
+        set { self[LoggerKey.self] = newValue }
+    }
+
+    var tokenStore: any TokenStoring {
+        get { self[TokenStoreKey.self] }
+        set { self[TokenStoreKey.self] = newValue }
+    }
+
+    var apiClient: any KVAPIClientProtocol {
+        get { self[APIClientKey.self] }
+        set { self[APIClientKey.self] = newValue }
+    }
+
+    var router: any KVRouting {
+        get { self[RouterKey.self] }
+        set { self[RouterKey.self] = newValue }
+    }
+
+    var toast: ToastService {
+        get { self[ToastKey.self] }
+        set { self[ToastKey.self] = newValue }
+    }
+}
