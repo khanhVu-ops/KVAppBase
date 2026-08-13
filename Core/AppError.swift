@@ -36,16 +36,24 @@ enum AppError: Error, Equatable, Sendable {
 
     /// What a user should read. Kept here so every screen phrases the same
     /// failure the same way.
+    ///
+    /// `String(localized:)` là Foundation, nên luật 1 (`Domain`/`Core` chỉ import
+    /// Foundation) vẫn nguyên. Literal ở đây là **key** của
+    /// `App/Resources/Localizable.xcstrings`, viết bằng English để đọc được tại
+    /// chỗ; bản dịch 19 ngôn ngữ nằm trong catalog. `tools/check-l10n.sh` fail nếu
+    /// một `return "..."` ở tầng này không đi qua `String(localized:)`.
     var userMessage: String {
         switch self {
         case .offline:
-            return "Không có kết nối mạng. Vui lòng thử lại."
+            return String(localized: "No internet connection. Please try again.")
         case .unauthorized:
-            return "Phiên đăng nhập đã hết hạn."
+            return String(localized: "Your session has expired.")
         case .server(let message, _):
+            // Text của server, đã viết cho đúng người dùng này bằng ngôn ngữ của
+            // họ — dịch lại là sai, và nó không phải key của catalog.
             return message
         case .decoding:
-            return "Dữ liệu trả về không hợp lệ. Vui lòng thử lại sau."
+            return String(localized: "The server returned invalid data. Please try again later.")
         case .cancelled:
             return ""
         case .unknown:
@@ -54,7 +62,7 @@ enum AppError: Error, Equatable, Sendable {
             // định." — system phrasing about the app's own configuration, shown
             // to someone who cannot act on it. The detail is already in the log,
             // where it belongs; see `diagnostic`.
-            return "Đã có lỗi xảy ra. Vui lòng thử lại."
+            return String(localized: "Something went wrong. Please try again.")
         }
     }
 

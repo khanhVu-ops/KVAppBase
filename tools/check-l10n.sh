@@ -15,10 +15,19 @@
 #      key của catalog, hoặc nằm trong tools/l10n-baseline.txt — và baseline chỉ
 #      được co lại, không được nở ra
 #
-# Phạm vi đã biết là hẹp: phép kiểm 4 chỉ soi chuỗi trong `Text/Button/Label/
-# navigationTitle/...`. Text do Core/Domain sinh ra (`AppError.userMessage`, message
-# của toast) là user-facing thật nhưng script này chưa soi — dùng `String(localized:)`
-# ở đó, và xem skill `ios-l10n`. Nói ra chỗ hẹp còn hơn để dấu tick xanh ngụ ý rộng.
+#   5  mọi key trong `String(localized: "...")` phải có trong catalog
+#   6  trong Core/ và Domain/, `return "..."` phải đi qua `String(localized:)`
+#
+# Vì sao luật 6 nhìn kỳ mà lại chính xác: ở hai tầng đó, `return` của một string
+# literal gần như luôn là text chảy ra cho người dùng đọc — `AppError.userMessage`,
+# message validate của use case. Đo trên source thật trước khi viết luật: 9 hit, 8 là
+# text người dùng, còn lại là `return ""` và một chuỗi nội suy thuần. Không dính literal
+# hạ tầng nào (key Info.plist, key keychain, path endpoint) vì chúng không ở dạng
+# `return "..."`. Luật suy từ source, không phải từ cảm giác.
+#
+# Phạm vi còn hẹp ở hai chỗ, nói ra để dấu tick xanh không ngụ ý rộng hơn thực tế:
+# `Data/` không bị luật 6 (đầy literal wire-level: path, JSON key, keychain key), và
+# chuỗi ghép động `"\(a) \(b)"` thì script không đọc được ý định.
 
 set -uo pipefail
 cd "$(dirname "$0")/.."
@@ -108,10 +117,19 @@ fi
 # ---------------------------------------------------------------------------
 # `verbatim:` được miễn: đó là cách nói tường minh "chuỗi này không dịch" — mã đơn,
 # số, tên riêng.
-literals=$(grep -rhoE '(Text|Button|Label|navigationTitle|confirmationDialog|alert)\((verbatim: )?"[^"]+"' \
-    --include='*.swift' Features DesignSystem \
-    | grep -v 'verbatim: ' \
-    | sed -E 's/^[A-Za-z]+\("//; s/"$//' | sort -u)
+literals=$(
+    {
+        grep -rhoE '(Text|Button|Label|navigationTitle|confirmationDialog|alert)\((verbatim: )?"[^"]+"' \
+            --include='*.swift' Features DesignSystem | grep -v 'verbatim: ' \
+            | sed -E 's/^[A-Za-z]+\("//; s/"$//'
+        # Copy của alert và toast do ViewModel dựng: cũng là text người dùng đọc, chỉ
+        # khác chỗ đứng. `logger.*` thì không — log không phải UI, đừng dịch log.
+        grep -rhoE '(title|message):[[:space:]]*"[^"]+"' --include='*.swift' Features \
+            | sed -E 's/^[a-z]+:[[:space:]]*"//; s/"$//'
+        grep -rhoE '\.(success|error|info|warning)\("[^"]+"\)' --include='*.swift' Features \
+            | grep -v 'logger\.' | sed -E 's/^\.[a-z]+\("//; s/"\)$//'
+    } | sort -u
+)
 
 keys=$(python3 -c "import json,sys; print('\n'.join(json.load(open(sys.argv[1])).get('strings',{}).keys()))" "$CATALOG")
 [ -f "$BASELINE" ] && baseline=$(grep -v '^#' "$BASELINE" | grep -v '^$') || baseline=""
@@ -144,6 +162,41 @@ if [ -n "$stale" ]; then
 else
     baseline_count=$(grep -c . <<< "${baseline:-}" 2>/dev/null || echo 0)
     pass "baseline còn $baseline_count chuỗi nợ, không có dòng chết"
+fi
+
+# ---------------------------------------------------------------------------
+# 5. Key của String(localized:) phải có thật trong catalog.
+#    Đây là lỗi im lặng nhất trong cả file này: gõ sai key hay quên thêm vào
+#    catalog thì app hiện đúng chữ English của key, không crash, không log.
+# ---------------------------------------------------------------------------
+orphans=""
+while IFS= read -r key; do
+    [ -n "$key" ] || continue
+    grep -qxF "$key" <<< "$keys" || orphans="$orphans$key"$'\n'
+done < <(grep -rhoE 'String\(localized: "[^"]+"' --include='*.swift' \
+            Core Domain Data DI DesignSystem Features App \
+         | sed -E 's/^String\(localized: "//; s/"$//' | sort -u)
+if [ -n "$orphans" ]; then
+    fail "String(localized:) dùng key không có trong catalog" "$orphans" \
+        "app sẽ hiện nguyên key — không crash, không log, nên chỉ người dùng thấy"
+else
+    pass "mọi key của String(localized:) đều có trong catalog"
+fi
+
+# ---------------------------------------------------------------------------
+# 6. Core/ và Domain/: return một literal thì phải qua String(localized:).
+#    Miễn `return ""` và chuỗi nội suy thuần (`"\(code): \(message)"`) — cái đầu
+#    là "không hiện gì", cái sau là diagnostic ghép từ giá trị runtime.
+# ---------------------------------------------------------------------------
+bare=$(grep -rnE 'return "[^"]*"' --include='*.swift' Core Domain \
+       | grep -v 'String(localized:' \
+       | grep -vE 'return ""' \
+       | grep -vE 'return "\\\(' || true)
+if [ -n "$bare" ]; then
+    fail "Core/Domain return chuỗi thô, chưa localize" "$bare" \
+        "bọc trong String(localized:) và thêm key vào catalog kèm đủ ngôn ngữ"
+else
+    pass "Core/Domain không còn chuỗi thô nào chảy ra ngoài"
 fi
 
 echo

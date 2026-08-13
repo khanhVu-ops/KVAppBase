@@ -22,6 +22,7 @@ restore() {
     cp "$tmp/catalog" "$CATALOG"
     cp "$tmp/baseline" "$BASELINE"
     cp "$tmp/view" "$PROBE_VIEW"
+    [ -f "$tmp/apperror" ] && cp "$tmp/apperror" Core/AppError.swift
     rm -rf "$tmp"
 }
 trap restore EXIT
@@ -75,6 +76,15 @@ cp "$tmp/view" "$PROBE_VIEW"
 printf 'Một chuỗi không còn ở đâu cả\n' >> "$BASELINE"
 check "5 · baseline còn dòng đã chết"
 cp "$tmp/baseline" "$BASELINE"
+
+cp Core/AppError.swift "$tmp/apperror"
+perl -pi -e 's/String\(localized: "Your session has expired\."\)/String(localized: "Key nay khong co trong catalog")/' Core/AppError.swift
+check "6 · String(localized:) dùng key không có trong catalog"
+cp "$tmp/apperror" Core/AppError.swift
+
+perl -pi -e 's/return String\(localized: "Your session has expired\."\)/return "Phiên đã hết hạn."/' Core/AppError.swift
+check "7 · Core/Domain return chuỗi thô"
+cp "$tmp/apperror" Core/AppError.swift
 
 echo
 if [ "$fail_count" -gt 0 ]; then

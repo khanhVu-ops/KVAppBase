@@ -18,7 +18,7 @@ struct AlertState: Equatable, Identifiable, Sendable {
         self.message = message
     }
 
-    init(error: AppError, title: String = "Lỗi") {
+    init(error: AppError, title: String = String(localized: "Error")) {
         self.init(title: title, message: error.userMessage)
     }
 }

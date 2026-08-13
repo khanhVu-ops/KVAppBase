@@ -13,11 +13,20 @@
 # Chuỗi trong Core/Domain/Data (AppError.userMessage, message của toast, validate của
 # use case) là user-facing thật nhưng chưa nằm trong phạm vi script — xem skill
 # `ios-l10n`. Đừng dùng khoảng trống đó như một sự cho phép.
+Bạn có chắc muốn huỷ đơn này? Thao tác không thể hoàn tác.
 Chi tiết đơn
+Chưa có đơn hàng
+Email
 Huỷ đơn hàng
 Lịch sử
+Lịch sử đơn hàng
+Mật khẩu
 Quên mật khẩu
 Quên mật khẩu?
+Thay nội dung này bằng màn hình thật của bạn.
+Đã huỷ đơn hàng
 Đóng
 Đăng nhập
+Đăng nhập thất bại
 Đơn hàng
+Đơn hàng của bạn sẽ xuất hiện ở đây.
