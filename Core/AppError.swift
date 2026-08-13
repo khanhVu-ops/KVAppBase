@@ -30,6 +30,8 @@ enum AppError: Error, Equatable, Sendable {
     /// The caller cancelled. Not a failure — do not show anything.
     case cancelled
 
+    /// The associated value is a diagnostic for the log, **not** for the user —
+    /// see `userMessage`.
     case unknown(String)
 
     /// What a user should read. Kept here so every screen phrases the same
@@ -46,8 +48,22 @@ enum AppError: Error, Equatable, Sendable {
             return "Dữ liệu trả về không hợp lệ. Vui lòng thử lại sau."
         case .cancelled:
             return ""
-        case .unknown(let message):
-            return message.isEmpty ? "Đã có lỗi xảy ra." : message
+        case .unknown:
+            // Never the underlying description. `URLError.cannotFindHost`
+            // renders as "Không thể tìm thấy máy chủ có tên máy chủ được chỉ
+            // định." — system phrasing about the app's own configuration, shown
+            // to someone who cannot act on it. The detail is already in the log,
+            // where it belongs; see `diagnostic`.
+            return "Đã có lỗi xảy ra. Vui lòng thử lại."
+        }
+    }
+
+    /// The underlying detail, for logs and bug reports. Never render this.
+    var diagnostic: String? {
+        switch self {
+        case .unknown(let message):     return message.isEmpty ? nil : message
+        case .server(let message, let code): return "\(code): \(message)"
+        default:                        return nil
         }
     }
 

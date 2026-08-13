@@ -22,7 +22,20 @@ enum AppBootstrap {
             // shipping logs generates more logs to ship.
             shouldCapture: { _ in true }
         )
-        NetworkLoggingURLProtocol.installGlobally(swizzlingSessionConfigurations: true)
+        // `URLProtocol.registerClass` only — no configuration swizzling.
+        //
+        // `installGlobally(swizzlingSessionConfigurations: true)` exchanges the
+        // `protocolClasses` getter process-wide, and on iOS 26 that crashes on
+        // the first request:
+        //
+        //   +[NSURLSessionConfiguration canInitWithTask:]: unrecognized selector
+        //
+        // CFNetwork walks the returned array calling `+canInitWithTask:` on each
+        // entry, and after the exchange the array contains the configuration
+        // class itself. The app's own client is covered by `install(in:)`
+        // instead — see APIClientFactory. That is the route the package
+        // documents as the explicit, swizzle-free one, and it is enough here.
+        NetworkLoggingURLProtocol.installGlobally()
         #endif
 
         return logger

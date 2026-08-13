@@ -22,7 +22,7 @@ settings:
 packages:
   KVRouter:
     url: https://github.com/khanhVu-ops/KVRouter.git
-    from: 3.2.0
+    from: 3.2.1
   KVDIKit:
     url: https://github.com/khanhVu-ops/KVDIKit.git
     from: 1.0.0

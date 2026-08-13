@@ -1,6 +1,7 @@
 import Foundation
 import KVNetworkit
 import KVLoggingKit
+import KVLoggingNetwork
 
 enum APIClientFactory {
 
@@ -17,6 +18,7 @@ enum APIClientFactory {
         logger: LogClient
     ) -> any KVAPIClientProtocol {
         KVAPIClient(
+            session: KVNetworkSession(configuration: capturingConfiguration()),
             interceptors: [
                 KVNetworkAwareInterceptor(),
                 KVAuthInterceptor(tokenProvider: { tokenStore.accessToken }),
@@ -32,5 +34,19 @@ enum APIClientFactory {
             retryPolicy: .default,
             cache: KVHybridCache()
         )
+    }
+
+    /// A configuration the on-device console can see into.
+    ///
+    /// `install(in:)` adds the capture protocol to this one configuration:
+    /// explicit, scoped to the app's own client, and with no process-wide
+    /// swizzling of `protocolClasses` — which crashes on iOS 26, see
+    /// AppBootstrap. Release builds get a plain configuration.
+    private static func capturingConfiguration() -> URLSessionConfiguration {
+        let configuration = URLSessionConfiguration.default
+        #if DEBUG
+        NetworkLoggingURLProtocol.install(in: configuration)
+        #endif
+        return configuration
     }
 }
