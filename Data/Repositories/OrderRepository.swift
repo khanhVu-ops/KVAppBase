@@ -14,7 +14,9 @@ final class OrderRepository: OrderRepositoryProtocol {
 
     func list(forceRefresh: Bool) async throws -> [Order] {
         try await perform("list orders") {
-            let dto: [OrderDTO] = try await client.request(OrderEndpoint.list)
+            let dto: [OrderDTO] = try await client.request(
+                OrderEndpoint.list(forceRefresh: forceRefresh)
+            )
             return dto.map { $0.toDomain() }
         }
     }

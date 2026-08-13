@@ -2,7 +2,11 @@ import Foundation
 import KVNetworkit
 
 enum OrderEndpoint: KVAPIEndpointProtocol {
-    case list
+    /// `forceRefresh` không đổi URL — nó đổi `cachePolicy`. KVNetworkit lấy policy
+    /// **chỉ** từ endpoint (`request` không có tham số override), nên "bỏ qua cache"
+    /// phải là một case của endpoint, không thì `forceRefresh` của repository là một
+    /// lời hứa không ai thực hiện.
+    case list(forceRefresh: Bool)
     case detail(id: String)
     case cancel(id: String)
 
@@ -29,9 +33,9 @@ enum OrderEndpoint: KVAPIEndpointProtocol {
     /// an order must never come from a cache.
     var cachePolicy: KVCachePolicy {
         switch self {
-        case .list:   return .cacheFirst(ttl: 60)
-        case .detail: return .cacheFirst(ttl: 30)
-        case .cancel: return .ignore
+        case .list(let forceRefresh): return forceRefresh ? .ignore : .cacheFirst(ttl: 60)
+        case .detail:                 return .cacheFirst(ttl: 30)
+        case .cancel:                 return .ignore
         }
     }
 }

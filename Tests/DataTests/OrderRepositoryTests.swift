@@ -20,6 +20,15 @@ final class OrderRepositoryTests: XCTestCase {
         )
     }
 
+    /// `forceRefresh` là một lời hứa với người dùng: kéo xuống refresh thì phải ra
+    /// dữ liệu mới. KVNetworkit đọc `cachePolicy` **chỉ** từ endpoint, nên nếu policy
+    /// không đổi theo cờ đó thì pull-to-refresh trả lại đúng bản cache cũ tới 60s và
+    /// không có gì trong app nói ra điều đó. Test này canh đúng chỗ nối ấy.
+    func test_forceRefresh_bypassesCache() {
+        XCTAssertEqual(OrderEndpoint.list(forceRefresh: true).cachePolicy, .ignore)
+        XCTAssertEqual(OrderEndpoint.list(forceRefresh: false).cachePolicy, .cacheFirst(ttl: 60))
+    }
+
     func test_list_decodesAndMapsToDomain() async throws {
         let json = """
         [{"id":"1","code":"DH-0001","customerName":"A","total":250000,"status":"shipping"}]
