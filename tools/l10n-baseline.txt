@@ -10,9 +10,10 @@
 # một dòng ở đây không còn khớp source nào — giấy nợ đã trả phải xé, nếu không lần sau
 # không ai biết con số thật.
 #
-# Chuỗi trong Core/Domain/Data (AppError.userMessage, message của toast, validate của
-# use case) là user-facing thật nhưng chưa nằm trong phạm vi script — xem skill
-# `ios-l10n`. Đừng dùng khoảng trống đó như một sự cho phép.
+# Danh sách này chỉ là nợ của tầng View. `Core`/`Domain` đã trả xong: text ở đó đi qua
+# `String(localized:)` và script canh cả hai chiều — key phải có trong catalog, và
+# `return "..."` thô thì fail. `Data/` vẫn ngoài phạm vi (đầy literal wire-level), và
+# `accessibilityLabel` thì chưa ai canh. Đừng dùng khoảng trống đó như một sự cho phép.
 Bạn có chắc muốn huỷ đơn này? Thao tác không thể hoàn tác.
 Chi tiết đơn
 Chưa có đơn hàng
