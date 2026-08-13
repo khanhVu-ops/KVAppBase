@@ -67,6 +67,11 @@ step "Self-test cho check-arch"
 # chứng nhận điều ngược lại. Rẻ, nên chạy luôn.
 ./tools/check-arch-selftest.sh || die "check-arch.sh không còn bắt được vi phạm"
 
+step "Localization"
+./tools/check-l10n.sh || die "Localization chưa đủ"
+./tools/check-l10n-selftest.sh >/dev/null || die "check-l10n.sh không còn bắt được vi phạm"
+echo "  self-test cho check-l10n: OK"
+
 step "Sinh lại project (XcodeGen)"
 if command -v xcodegen >/dev/null; then
     xcodegen generate --quiet || die "xcodegen generate thất bại"

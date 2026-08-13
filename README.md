@@ -95,8 +95,24 @@ xem `ios-architecture/references/ios16.md`.
 xcodegen generate                  # sau khi thêm/di chuyển BẤT KỲ file nào
 ./tools/check-arch.sh              # 10 luật phân tầng
 ./tools/check-arch-selftest.sh     # chứng minh 10 luật đó còn hiệu lực
+./tools/check-l10n.sh              # text mới đã dịch đủ 19 ngôn ngữ chưa
 ./tools/verify.sh                  # tất cả + build + test
 ```
+
+## Localization
+
+App khai **19 ngôn ngữ**: en (source) · ar · zh-Hans · zh-Hant · nl · fr · de · hi ·
+id · it · ja · ko · pt-BR · pt-PT · ru · es · th · tr · vi.
+
+`App/Resources/Localizable.xcstrings` là nguồn duy nhất — XcodeGen suy `knownRegions`
+từ chính catalog, nên thêm một ngôn ngữ ở đó là Xcode hiện đúng danh sách, không có
+chỗ thứ hai để lệch. Build ra 19 folder `.lproj` trong app bundle.
+
+Luật: **text mới phải dịch đủ 19 ngôn ngữ ngay lúc thêm.** `tools/check-l10n.sh` bắt
+chuỗi user-facing không đi qua catalog và chuỗi thiếu bản dịch; nợ có sẵn của template
+nằm trong `tools/l10n-baseline.txt` và danh sách đó **chỉ được co lại**. Cách thêm một
+string, và chỗ dùng `String(localized:)` cho text sinh từ ViewModel/Domain: xem skill
+`ios-l10n`.
 
 `tools/xcodegen-if-needed.sh` lo giúp trường hợp hay quên nhất: `.claude/settings.json`
 gọi nó như `PostToolUse` hook, và nó `xcodegen generate` khi có file `.swift` **mới**,

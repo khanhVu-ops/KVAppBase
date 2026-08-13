@@ -23,6 +23,13 @@ Không thấy kit ở đó thì hỏi đường dẫn, đừng đoán luật t�
 3. Feature không import `Data`.
 4. View con nhận value, không nhận ViewModel (luật hiệu năng iOS 16).
 
+## Text
+
+App khai 19 ngôn ngữ. **Mọi text mới phải vào `App/Resources/Localizable.xcstrings`
+với đủ 19 bản dịch, ngay lúc thêm** — `tools/check-l10n.sh` fail nếu thiếu. Nợ cũ của
+template nằm trong `tools/l10n-baseline.txt`, và file đó chỉ được co lại. Chi tiết:
+skill `ios-l10n` trong kit.
+
 ## Trước khi nói xong
 
 ```bash

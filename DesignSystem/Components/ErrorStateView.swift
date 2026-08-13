@@ -26,7 +26,10 @@ struct ErrorStateView: View, Equatable {
                 .multilineTextAlignment(.center)
 
             if error.isRetryable {
-                Button("Thử lại", action: onRetry)
+                // Chuỗi trong `Text`/`Button` là **key** của string catalog, và
+                // SwiftUI tra cứu tự động. Viết key bằng English để nó đọc được cả
+                // khi chưa dịch; bản tiếng Việt nằm trong Localizable.xcstrings.
+                Button("Retry", action: onRetry)
                     .buttonStyle(.borderedProminent)
                     .tint(AppColor.Brand.primary)
             }

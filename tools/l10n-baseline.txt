@@ -1,0 +1,23 @@
+# Nợ localization của template — danh sách này chỉ được CO LẠI.
+#
+# Mỗi dòng là một chuỗi user-facing đang hardcode trong Features/ hoặc DesignSystem/,
+# có từ trước khi app khai 19 ngôn ngữ. `tools/check-l10n.sh` cho chúng đi qua, và
+# fail mọi chuỗi mới không có trong đây — nên nợ cũ không chặn việc, còn nợ mới thì
+# không thêm được.
+#
+# Trả một dòng: đưa chuỗi vào App/Resources/Localizable.xcstrings với đủ 19 ngôn ngữ,
+# đổi code sang dùng key English, rồi **xoá dòng đó khỏi file này**. Script fail nếu
+# một dòng ở đây không còn khớp source nào — giấy nợ đã trả phải xé, nếu không lần sau
+# không ai biết con số thật.
+#
+# Chuỗi trong Core/Domain/Data (AppError.userMessage, message của toast, validate của
+# use case) là user-facing thật nhưng chưa nằm trong phạm vi script — xem skill
+# `ios-l10n`. Đừng dùng khoảng trống đó như một sự cho phép.
+Chi tiết đơn
+Huỷ đơn hàng
+Lịch sử
+Quên mật khẩu
+Quên mật khẩu?
+Đóng
+Đăng nhập
+Đơn hàng
