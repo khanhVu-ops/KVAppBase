@@ -98,4 +98,8 @@ xcodegen generate                  # sau khi thêm/di chuyển BẤT KỲ file n
 ./tools/verify.sh                  # tất cả + build + test
 ```
 
+`tools/xcodegen-if-needed.sh` lo giúp trường hợp hay quên nhất: `.claude/settings.json`
+gọi nó như `PostToolUse` hook, và nó `xcodegen generate` khi có file `.swift` **mới**,
+im lặng khi chỉ là một lần sửa. Di chuyển hay xoá file thì vẫn phải tự chạy.
+
 Đừng sửa `MyApp.xcodeproj` bằng tay — nó được sinh ra và đã gitignore.

@@ -29,9 +29,12 @@ Không thấy kit ở đó thì hỏi đường dẫn, đừng đoán luật t�
 ./tools/verify.sh
 ```
 
-10 luật → 10 self-test + 1 → xcodegen → build + test. Thêm hoặc di chuyển **bất
-kỳ** file nào cũng phải `xcodegen generate`; một app target không tự phát hiện
-file mới, và triệu chứng là "code có đó mà compiler bảo không tìm thấy".
+10 luật → 11 self-test → xcodegen → build + test.
+
+File `.swift` **mới** thì hook `PostToolUse` trong `.claude/settings.json` đã
+`xcodegen generate` giúp (qua `tools/xcodegen-if-needed.sh`). **Di chuyển hoặc xoá**
+file thì vẫn phải tự chạy — một app target không tự phát hiện, và triệu chứng là
+"code có đó mà compiler bảo không tìm thấy".
 
 Sửa `check-arch.sh` thì chạy `check-arch-selftest.sh`. Một luật im lặng ngừng
 khớp còn tệ hơn không có luật, vì dấu tick xanh lúc đó chứng nhận điều ngược lại.

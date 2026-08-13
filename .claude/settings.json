@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -x \"$CLAUDE_PROJECT_DIR/tools/xcodegen-if-needed.sh\" ] && \"$CLAUDE_PROJECT_DIR/tools/xcodegen-if-needed.sh\" || true",
+            "statusMessage": "Kiểm file Swift mới",
+            "timeout": 60
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Bash(./tools/verify.sh)",
+      "Bash(./tools/check-arch.sh)",
+      "Bash(./tools/check-arch-selftest.sh)",
+      "Bash(./tools/xcodegen-if-needed.sh*)",
+      "Bash(xcodegen generate*)"
+    ]
+  }
+}
