@@ -24,6 +24,8 @@
 	<string>$(API_BASE_URL)</string>
 	<key>ENVIRONMENT_NAME</key>
 	<string>$(ENVIRONMENT_NAME)</string>
+	<key>USES_STUB_BACKEND</key>
+	<string>$(USES_STUB_BACKEND)</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

@@ -18,6 +18,12 @@ struct OrderRows: View, Equatable {
         List(orders) { order in
             Button { onTap(order.id) } label: {
                 OrderRow(order: order)
+                    // Without this the row is only tappable where the label
+                    // draws something opaque. `.buttonStyle(.plain)` gives up
+                    // the cell-wide hit area a list row normally has, and the
+                    // HStack's `Spacer` is empty, so taps between the code and
+                    // the price fall through and the row reads as dead.
+                    .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .listRowBackground(AppColor.Surface.card)

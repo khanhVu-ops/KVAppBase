@@ -9,6 +9,14 @@ struct AppEnvironment: Sendable {
     let apiBaseURL: String
     let name: String
 
+    /// Serve the app from in-memory fixtures instead of the network.
+    ///
+    /// A base project nobody can run is a base project nobody reads. Without
+    /// this the sign-in screen is a dead end — there is no backend behind
+    /// `api-dev.example.com` — and every screen after it is unreachable.
+    /// Switch it off in `project.yml` the moment a real API exists.
+    let usesStubBackend: Bool
+
     static let current: AppEnvironment = {
         let bundle = Bundle.main
         let baseURL = bundle.object(forInfoDictionaryKey: "API_BASE_URL") as? String
@@ -27,7 +35,8 @@ struct AppEnvironment: Sendable {
 
         return AppEnvironment(
             apiBaseURL: baseURL ?? "https://api.test.local",
-            name: name ?? (isRunningTests ? "test" : "debug")
+            name: name ?? (isRunningTests ? "test" : "debug"),
+            usesStubBackend: bundle.object(forInfoDictionaryKey: "USES_STUB_BACKEND") as? String == "YES"
         )
     }()
 

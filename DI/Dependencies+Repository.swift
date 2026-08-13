@@ -9,6 +9,7 @@ import KVLoggingKit
 
 enum OrderRepositoryKey: KVDependencyKey {
     static let liveValue: any OrderRepositoryProtocol = {
+        guard !AppEnvironment.current.usesStubBackend else { return StubOrderRepository() }
         @KVDependency(\.apiClient) var client
         @KVDependency(\.logger) var logger
         return OrderRepository(client: client, logger: logger.scoped(category: "order"))
@@ -19,6 +20,7 @@ enum OrderRepositoryKey: KVDependencyKey {
 
 enum AuthRepositoryKey: KVDependencyKey {
     static let liveValue: any AuthRepositoryProtocol = {
+        guard !AppEnvironment.current.usesStubBackend else { return StubAuthRepository() }
         @KVDependency(\.apiClient) var client
         @KVDependency(\.tokenStore) var tokenStore
         @KVDependency(\.logger) var logger

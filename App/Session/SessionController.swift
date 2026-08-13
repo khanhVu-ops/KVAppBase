@@ -13,12 +13,20 @@ final class SessionController: ObservableObject {
 
     @Published private(set) var isSignedIn: Bool
 
-    private let router: KVAppRouter
+    /// Set after the router is built. `AuthGuardMiddleware` needs this object to
+    /// answer "is anyone signed in", and the router needs the middleware, so one
+    /// of the two has to be wired second.
+    var router: KVAppRouter?
+
     private let logger: ScopedLogClient
 
-    init(router: KVAppRouter, logger: LogClient) {
-        self.router = router
+    init(logger: LogClient) {
         self.logger = logger.scoped(category: "session")
+        // Seeded from storage, then owned in memory. Anything asking whether a
+        // user is signed in asks *this* — see AuthGuardMiddleware. Two places
+        // reading the keychain independently is how the app ends up showing the
+        // signed-in root while the guard redirects every push to sign-in, which
+        // is exactly what happened before this was centralised.
         self.isSignedIn = KeychainTokenStore.shared.accessToken != nil
     }
 
@@ -30,14 +38,14 @@ final class SessionController: ObservableObject {
         }
         logger.info("Signed in", metadata: ["user_id": .public(session.user.id)])
         isSignedIn = true
-        router.popToRoot()
+        router?.popToRoot()
     }
 
     func signOut() {
         KeychainTokenStore.shared.clear()
         KVDependencies.endSession()
         isSignedIn = false
-        router.popToRoot()
+        router?.popToRoot()
         logger.info("Signed out")
     }
 
@@ -46,7 +54,7 @@ final class SessionController: ObservableObject {
     /// came from.
     func observeSessionChanges() async {
         for await session in KVDependencies.sessionChanges where session == nil {
-            router.popToRoot()
+            router?.popToRoot()
         }
     }
 }

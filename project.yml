@@ -88,14 +88,19 @@ targets:
         Debug:
           API_BASE_URL: https://api-dev.example.com
           ENVIRONMENT_NAME: debug
+          # Fixtures instead of the network, so the template runs out of the box.
+          # Set NO as soon as API_BASE_URL points at something real.
+          USES_STUB_BACKEND: "YES"
         Staging:
           API_BASE_URL: https://api-staging.example.com
           ENVIRONMENT_NAME: staging
           ENABLE_TESTABILITY: "NO"
+          USES_STUB_BACKEND: "NO"
         Release:
           API_BASE_URL: https://api.example.com
           ENVIRONMENT_NAME: production
           ENABLE_TESTABILITY: "NO"
+          USES_STUB_BACKEND: "NO"
 
   MyAppTests:
     type: bundle.unit-test

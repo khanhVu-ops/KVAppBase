@@ -67,9 +67,24 @@ final class KeychainTokenStore: TokenStoring, @unchecked Sendable {
             kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock
         ]
 
-        let status = SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
+        var status = SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
         if status == errSecItemNotFound {
-            SecItemAdd(query.merging(attributes) { $1 } as CFDictionary, nil)
+            status = SecItemAdd(query.merging(attributes) { $1 } as CFDictionary, nil)
+        }
+        // A dropped write means the user is signed out on next launch with
+        // nothing on screen to explain it, so it must not pass unnoticed. But
+        // the noisiest case is not a bug: an unsigned simulator build
+        // (CODE_SIGNING_ALLOWED=NO) has no keychain entitlement and every write
+        // returns errSecMissingEntitlement. Trapping on that turns `swift run
+        // the template` into a crash on sign-in, so it is reported and
+        // tolerated; anything else is a real defect and stops the debug build.
+        switch status {
+        case errSecSuccess:
+            break
+        case errSecMissingEntitlement:
+            print("[Keychain] no entitlement (unsigned build): '\(key)' not persisted, session is memory-only")
+        default:
+            assertionFailure("Keychain write failed for '\(key)': OSStatus \(status)")
         }
     }
 

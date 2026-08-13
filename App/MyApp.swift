@@ -25,10 +25,12 @@ struct MyApp: App {
             let logger = LogClient.disabled
             let toastCenter = KVToastCenter()
             let router = KVAppRouter()
+            let session = SessionController(logger: logger)
+            session.router = router
             self.logger = logger
             self.toastCenter = toastCenter
             _router = StateObject(wrappedValue: router)
-            _session = State(wrappedValue: SessionController(router: router, logger: logger))
+            _session = State(wrappedValue: session)
             return
         }
 
@@ -37,10 +39,12 @@ struct MyApp: App {
 
         // 2. The main-actor objects the app owns for its whole life.
         let toastCenter = KVToastCenter()
+        let session = SessionController(logger: logger)
         let router = KVAppRouter(middlewares: [
-            AuthGuardMiddleware(isSignedIn: { KeychainTokenStore.shared.accessToken != nil }),
+            AuthGuardMiddleware(isSignedIn: { session.isSignedIn }),
             NavigationLogMiddleware(logger: logger)
         ])
+        session.router = router
 
         // 3. Fill the app layer of the dependency graph. Keys whose live value
         //    needs one of the objects above cannot resolve before this runs —
@@ -59,7 +63,7 @@ struct MyApp: App {
         self.logger = logger
         self.toastCenter = toastCenter
         _router = StateObject(wrappedValue: router)
-        _session = State(wrappedValue: SessionController(router: router, logger: logger))
+        _session = State(wrappedValue: session)
 
         logger.info("Application launched", category: "lifecycle")
     }
