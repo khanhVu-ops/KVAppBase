@@ -46,8 +46,15 @@ enum APIClientKey: KVDependencyKey {
 
 /// The router is a `@MainActor` object that only exists once `App.init` has run,
 /// so the key ships a placeholder and `KVDependencies.prepare` swaps in the real
-/// one. The placeholder asserts rather than silently doing nothing, because a
-/// navigation that quietly never happens is the hardest bug in this area.
+/// one.
+///
+/// The placeholder no-ops and asserts on the first command. Both obvious
+/// alternatives are worse — a real unhosted `KVAppRouter` swallows pushes into an
+/// invisible stack, and a silent no-op reads as a broken button and gets debugged
+/// from the wrong end.
+///
+/// KVRouterCore 3.2.0 ships `KVUnhostedRouter` for exactly this; see
+/// `UnhostedRouter.swift` for why it cannot be used from a `liveValue` yet.
 enum RouterKey: KVDependencyKey {
     static let liveValue: any KVRouting = UnhostedRouter()
     static let testValue: any KVRouting = UnhostedRouter()
