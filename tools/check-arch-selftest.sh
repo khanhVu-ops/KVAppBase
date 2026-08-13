@@ -83,7 +83,8 @@ probe "8 · Dependency key ngoài DI/" \
     Features/Order/OrderRoute.swift \
     "enum __ProbeKey: KVDependencyKey { static let liveValue = 0 }"
 
-# Luật 9 và 10 không kiểm được bằng cách thêm một dòng vào file Swift.
+# Luật 9 và 10 không kiểm được bằng cách thêm một dòng vào file Swift: một cái là
+# folder, hai cái còn lại là câu README nói về chính cây source và chính script này.
 probe_dir() {
     mkdir -p Domain/__probe
     if ./tools/check-arch.sh >/dev/null 2>&1; then
@@ -112,9 +113,23 @@ probe_readme() {
 }
 probe_readme
 
+probe_readme_count() {
+    cp README.md "$tmp/readme"
+    perl -pi -e 's/\b\d+ luật/999 luật/' README.md
+    if ./tools/check-arch.sh >/dev/null 2>&1; then
+        printf '\033[31m✗\033[0m 10b · README nói sai số luật — KHÔNG bị bắt\n'
+        fail_count=$((fail_count + 1))
+    else
+        printf '\033[32m✓\033[0m 10b · README nói sai số luật\n'
+        pass_count=$((pass_count + 1))
+    fi
+    cp "$tmp/readme" README.md
+}
+probe_readme_count
+
 echo
 if [ "$fail_count" -gt 0 ]; then
-    printf '\033[31m%d/%d luật không bắt được vi phạm.\033[0m\n' "$fail_count" "$((pass_count + fail_count))"
+    printf '\033[31m%d/%d phép kiểm không bắt được vi phạm.\033[0m\n' "$fail_count" "$((pass_count + fail_count))"
     exit 1
 fi
-printf '\033[32mCả %d luật đều bắt được vi phạm.\033[0m\n' "$pass_count"
+printf '\033[32mCả %d phép kiểm đều bắt được vi phạm.\033[0m\n' "$pass_count"

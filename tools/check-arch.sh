@@ -193,15 +193,23 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 10. The structure documented in README.md matches the disk.
+# 10. README.md tells the truth — about the tree, and about this script.
 #     This is the drift that matters most, and the one nothing usually catches:
 #     a rule file describing a layout the source no longer has teaches everyone
 #     who reads it — human or agent — the wrong thing, before they ever look at
-#     the code. Compare the top-level folders README claims with what exists.
+#     the code.
+#
+#     Two claims, because checking only the first one certifies the rest of the
+#     sentence for free: README said "8 luật" for a while after rules 9 and 10
+#     landed, and this very rule stayed green through it.
 # ---------------------------------------------------------------------------
 documented=$(grep -oE '^[A-Z][A-Za-z]*/' README.md | tr -d '/' | sort -u)
+# Chỉ so folder *tầng*. Bỏ dot-dir (.git, .claude, .agents) và những folder không
+# phải tầng (tools, config, docs). Nếu không, một repo vừa init-base — mang theo
+# .claude và config của kit — fail ngay ở lệnh verify đầu tiên của nó.
 actual=$(find . -maxdepth 1 -type d \
-    -not -name '.' -not -name '.git' -not -name 'tools' -not -name '*.xcodeproj' \
+    -not -name '.*' -not -name 'tools' -not -name 'config' -not -name 'docs' \
+    -not -name '*.xcodeproj' \
     | sed 's|^\./||' | sort -u)
 missing=$(comm -23 <(echo "$actual") <(echo "$documented"))
 extra=$(comm -13 <(echo "$actual") <(echo "$documented"))
@@ -212,6 +220,16 @@ if [ -n "$missing" ] || [ -n "$extra" ]; then
     fail "README.md mô tả cấu trúc khác thực tế" "$message"
 else
     pass "README.md khớp cấu trúc trên đĩa"
+fi
+
+# Số luật README hứa phải bằng số luật script thật sự có.
+rule_count=$(grep -cE '^# [0-9]+\. ' "$0")
+claimed=$(grep -oE '[0-9]+ luật' README.md | grep -oE '^[0-9]+' | sort -u)
+if [ -n "$claimed" ] && [ "$claimed" != "$rule_count" ]; then
+    fail "README.md nói sai số luật" \
+        "README: $(echo "$claimed" | tr '\n' ' ')· check-arch.sh có $rule_count luật"
+else
+    pass "README.md nói đúng số luật ($rule_count)"
 fi
 
 echo

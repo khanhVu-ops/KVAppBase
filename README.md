@@ -3,8 +3,14 @@
 Base project SwiftUI cho iOS 16+, Swift 6: MVVM + Clean Architecture trên 5
 package nội bộ (KVRouterKit, KVDIKit, KVNetworkit, KVToastKit, KVLoggingKit).
 
+<!-- template-only:start -->
 Đây là **template**. Để tạo app mới, dùng [KVAppKit](https://github.com/khanhVu-ops/KVAppKit)
 — nó kéo repo này theo version đã pin rồi đổi danh tính app.
+
+Hai dòng marker quanh đoạn này không phải trang trí: `init-base.sh` cắt đúng khối
+giữa chúng khi copy README sang repo app mới, để repo đó không tự giới thiệu mình
+là template. Đừng xoá marker.
+<!-- template-only:end -->
 
 ## Chạy thử
 
@@ -57,7 +63,7 @@ cùng module thấy nhau không cần `import`. `tools/check-arch.sh` là thứ 
 và nó suy luật từ chính source — đọc tên type khai báo dưới `Data/` rồi tìm chúng
 ở nơi không được biết, nên không cần danh sách bảo trì tay.
 
-`tools/check-arch-selftest.sh` chứng minh 8 luật đó **vẫn bắt được vi phạm**: nó
+`tools/check-arch-selftest.sh` chứng minh 10 luật đó **vẫn bắt được vi phạm**: nó
 tạo một vi phạm thật cho từng luật rồi kiểm tra script có fail. Một luật im lặng
 ngừng khớp còn tệ hơn không có luật.
 
@@ -87,8 +93,8 @@ xem `ios-architecture/references/ios16.md`.
 
 ```bash
 xcodegen generate                  # sau khi thêm/di chuyển BẤT KỲ file nào
-./tools/check-arch.sh              # 8 luật phân tầng
-./tools/check-arch-selftest.sh     # chứng minh 8 luật đó còn hiệu lực
+./tools/check-arch.sh              # 10 luật phân tầng
+./tools/check-arch-selftest.sh     # chứng minh 10 luật đó còn hiệu lực
 ./tools/verify.sh                  # tất cả + build + test
 ```
 
