@@ -43,6 +43,15 @@ BASELINE="tools/l10n-baseline.txt"
 LANGUAGES="en ar zh-Hans zh-Hant nl fr de hi id it ja ko pt-BR pt-PT ru es th tr vi"
 
 failures=0
+
+# grep, nhưng bỏ những dòng mà nội dung bắt đầu bằng comment. Doc comment nhắc một
+# cách viết sai làm ví dụ là chuyện bình thường và đáng khuyến khích — ba luật dưới
+# đây đều từng đỏ vì chính doc của repo này.
+code_grep() {
+    grep -rnE "$@" --include='*.swift' 2>/dev/null \
+        | grep -vE ':[0-9]+:[[:space:]]*(///?|\*|/\*)' || true
+}
+
 fail() { printf '\033[31m✗\033[0m %s\n' "$1"; shift; [ "$#" -gt 0 ] && printf '    %s\n' "$@"; failures=$((failures + 1)); }
 pass() { printf '\033[32m✓\033[0m %s\n' "$1"; }
 
@@ -123,15 +132,17 @@ fi
 # số, tên riêng.
 literals=$(
     {
-        grep -rhoE '(Text|Button|Label|navigationTitle|confirmationDialog|alert)\((verbatim: )?"[^"]+"' \
-            --include='*.swift' Features DesignSystem | grep -v 'verbatim: ' \
-            | sed -E 's/^[A-Za-z]+\("//; s/"$//'
+        code_grep '(Text|Button|Label|navigationTitle|confirmationDialog|alert)\((verbatim: )?"[^"]+"' Features DesignSystem \
+            | grep -oE '(Text|Button|Label|navigationTitle|confirmationDialog|alert)\((verbatim: )?"[^"]+"' \
+            | grep -v 'verbatim: ' | sed -E 's/^[A-Za-z]+\("//; s/"$//'
         # Copy của alert và toast do ViewModel dựng: cũng là text người dùng đọc, chỉ
         # khác chỗ đứng. `logger.*` thì không — log không phải UI, đừng dịch log.
-        grep -rhoE '(title|message):[[:space:]]*"[^"]+"' --include='*.swift' Features \
+        code_grep '(title|message):[[:space:]]*"[^"]+"' Features \
+            | grep -oE '(title|message):[[:space:]]*"[^"]+"' \
             | sed -E 's/^[a-z]+:[[:space:]]*"//; s/"$//'
-        grep -rhoE '\.(success|error|info|warning)\("[^"]+"\)' --include='*.swift' Features \
-            | grep -v 'logger\.' | sed -E 's/^\.[a-z]+\("//; s/"\)$//'
+        code_grep '\.(success|error|info|warning)\("[^"]+"\)' Features \
+            | grep -v 'logger\.' | grep -oE '\.(success|error|info|warning)\("[^"]+"\)' \
+            | sed -E 's/^\.[a-z]+\("//; s/"\)$//'
     } | sort -u
 )
 

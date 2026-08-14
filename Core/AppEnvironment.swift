@@ -45,3 +45,41 @@ struct AppEnvironment: Sendable {
 
     var isProduction: Bool { name == "production" }
 }
+
+// MARK: - Hằng số của app
+
+/// Những giá trị không đến từ build configuration mà từ **danh tính app**: id trên
+/// store, email hỗ trợ, các trang pháp lý.
+///
+/// Kiểu `URL` chứ không phải `String`: một chuỗi sai chính tả chỉ lộ ra khi người dùng
+/// bấm vào và không có gì xảy ra, còn ở đây nó không dựng được `URL` là thấy ngay.
+extension AppEnvironment {
+
+    /// **ĐỔI khi tạo app mới** — số này lấy trên App Store Connect sau khi tạo app.
+    /// Giữ nguyên placeholder thì `appStoreURL`/`shareURL` trỏ vào một trang không tồn
+    /// tại, nên `isAppStoreIDConfigured` được dùng để chặn nút "Đánh giá" ở Debug.
+    static let appStoreID = "0000000000"
+
+    static var isAppStoreIDConfigured: Bool { appStoreID != "0000000000" }
+
+    static let supportEmail = "support@var-meta.com"
+
+    /// Trang app trên store — dùng để share.
+    static var appStoreURL: URL {
+        URL(string: "https://apps.apple.com/app/id\(appStoreID)")!
+    }
+
+    /// Mở thẳng ô viết đánh giá. `action=write-review` là phần khác biệt duy nhất so
+    /// với link store thường, và là thứ khiến nút "Đánh giá" thật sự đưa người dùng
+    /// tới chỗ viết được.
+    static var writeReviewURL: URL {
+        URL(string: "https://apps.apple.com/app/id\(appStoreID)?action=write-review")!
+    }
+
+    static let privacyPolicyURL = URL(string: "https://sites.google.com/var-meta.com/privacypolicy/home")!
+    static let termsOfUseURL = URL(string: "https://sites.google.com/var-meta.com/termofuse2026/home")!
+
+    /// EULA riêng: để `nil` khi app dùng EULA mặc định của Apple. Apple **bắt buộc**
+    /// có link EULA trên màn hình bán gói đăng ký — app nào có IAP thì điền vào đây.
+    static let eulaURL: URL? = nil
+}
