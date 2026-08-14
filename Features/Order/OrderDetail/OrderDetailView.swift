@@ -28,12 +28,12 @@ struct OrderDetailView: View {
             )
         }
         .background(AppColor.Surface.background)
-        .navigationTitle("Chi tiết đơn")
+        .navigationTitle("Order detail")
         .navigationBarTitleDisplayMode(.inline)
         .task { viewModel.send(.appeared) }
         .confirmationAlert(
             viewModel.state.alert,
-            confirmTitle: "Huỷ đơn",
+            confirmTitle: "Cancel order",
             onConfirm: { viewModel.send(.cancelConfirmed) },
             onDismiss: { viewModel.send(.alertDismissed) }
         )
@@ -51,17 +51,17 @@ struct OrderDetailContent: View, Equatable {
             VStack(alignment: .leading, spacing: Spacing.m) {
                 OrderStatusBadge(status: order.status)
 
-                row("Mã đơn", Text(verbatim: order.code))
-                row("Khách hàng", Text(verbatim: order.customerName))
-                row("Tổng tiền", Text(order.total, format: .currency(code: "VND")))
-                row("Ngày đặt", Text(order.placedAt, format: .dateTime.day().month().year().hour().minute()))
+                row("Order code", Text(verbatim: order.code))
+                row("Customer", Text(verbatim: order.customerName))
+                row("Total", Text(order.total, format: .currency(code: "VND")))
+                row("Order date", Text(order.placedAt, format: .dateTime.day().month().year().hour().minute()))
 
                 if order.isCancellable {
                     Button(role: .destructive, action: onCancel) {
                         if isCancelling {
                             ProgressView()
                         } else {
-                            Text("Huỷ đơn hàng").frame(maxWidth: .infinity)
+                            Text("Cancel order").frame(maxWidth: .infinity)
                         }
                     }
                     .buttonStyle(.borderedProminent)

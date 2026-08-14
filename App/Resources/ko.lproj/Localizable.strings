@@ -3,11 +3,38 @@
    Mọi key phải có mặt ở CẢ 19 file, với giá trị đã dịch —
    tools/check-l10n.sh fail nếu thiếu một key hoặc một ngôn ngữ. */
 
+/* Confirmation body before cancelling an order. */
+"Are you sure you want to cancel this order? This cannot be undone." = "이 주문을 취소하시겠습니까? 되돌릴 수 없습니다.";
+
+/* Destructive button, its confirmation title, and the confirm action. */
+"Cancel order" = "주문 취소";
+
+/* Order status badge. */
+"Cancelled" = "취소됨";
+
 /* Dismiss button on alerts and sheets. */
 "Close" = "닫기";
 
+/* Order status badge. */
+"Confirmed" = "확인됨";
+
+/* Row label on the order detail screen. */
+"Customer" = "고객";
+
+/* Order status badge. */
+"Delivered" = "배송 완료";
+
+/* Email field placeholder. */
+"Email" = "이메일";
+
 /* Default alert title for AlertState(error:). One word — check it is not truncated in the alert. */
 "Error" = "오류";
+
+/* Forgot-password screen title. */
+"Forgot password" = "비밀번호 찾기";
+
+/* Link under the sign-in button. */
+"Forgot password?" = "비밀번호를 잊으셨나요?";
 
 /* SignInUseCase validation — email fails the format check. */
 "Invalid email address." = "이메일 주소가 올바르지 않습니다.";
@@ -15,17 +42,59 @@
 /* Title of the in-app language picker, and the toolbar button that opens it. */
 "Language" = "언어";
 
+/* Shown while the order list loads. */
+"Loading orders" = "주문 불러오는 중";
+
 /* AppError.offline — shown on the error state view and in alerts. */
 "No internet connection. Please try again." = "인터넷에 연결되어 있지 않습니다. 다시 시도해 주세요.";
+
+/* Empty state title on the order list. */
+"No orders yet" = "아직 주문이 없습니다";
+
+/* Toast after an order is cancelled. */
+"Order cancelled" = "주문이 취소되었습니다";
+
+/* Row label on the order detail screen. */
+"Order code" = "주문 번호";
+
+/* Row label on the order detail screen. */
+"Order date" = "주문 일시";
+
+/* Order detail screen title. */
+"Order detail" = "주문 상세";
+
+/* Order history screen title. */
+"Order history" = "주문 내역";
+
+/* Order list screen title. */
+"Orders" = "주문";
+
+/* Password field placeholder. */
+"Password" = "비밀번호";
 
 /* SignInUseCase validation. The 6 is a fixed business rule, so no plural variant is needed. */
 "Password must be at least 6 characters." = "비밀번호는 6자 이상이어야 합니다.";
 
+/* Order status badge. */
+"Pending" = "확인 대기";
+
 /* SignInUseCase validation — empty email field. */
 "Please enter your email." = "이메일을 입력해 주세요.";
 
+/* Placeholder body on template screens. */
+"Replace this with your real screen." = "실제 화면으로 교체하세요.";
+
 /* Button on the error state view. Worked example: every language this app declares is filled in here, and tools/check-l10n.sh fails if any is missing. */
 "Retry" = "다시 시도";
+
+/* Search field prompt on the order list. */
+"Search by order code" = "주문 번호로 검색";
+
+/* Order status badge — on its way. */
+"Shipping" = "배송 중";
+
+/* Sign-in screen title and the submit button. */
+"Sign in" = "로그인";
 
 /* AppError.unknown — deliberately generic; the technical detail goes to the log via `diagnostic`. */
 "Something went wrong. Please try again." = "문제가 발생했습니다. 다시 시도해 주세요.";
@@ -35,6 +104,15 @@
 
 /* AppError.decoding — a backend contract change; never actionable by the user. */
 "The server returned invalid data. Please try again later." = "서버가 잘못된 데이터를 반환했습니다. 나중에 다시 시도해 주세요.";
+
+/* Row label on the order detail screen — the order total. */
+"Total" = "합계";
+
+/* Forgot-password screen. %@ is the email the user typed. */
+"We will send instructions to %@." = "%@(으)로 안내를 보내드립니다.";
+
+/* Empty state body on the order list. */
+"Your orders will appear here." = "주문이 여기에 표시됩니다.";
 
 /* AppError.unauthorized — SessionController handles the sign-out; no screen shows its own message. */
 "Your session has expired." = "세션이 만료되었습니다.";

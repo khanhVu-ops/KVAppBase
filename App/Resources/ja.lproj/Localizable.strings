@@ -3,11 +3,38 @@
    Mọi key phải có mặt ở CẢ 19 file, với giá trị đã dịch —
    tools/check-l10n.sh fail nếu thiếu một key hoặc một ngôn ngữ. */
 
+/* Confirmation body before cancelling an order. */
+"Are you sure you want to cancel this order? This cannot be undone." = "この注文をキャンセルしますか？この操作は取り消せません。";
+
+/* Destructive button, its confirmation title, and the confirm action. */
+"Cancel order" = "注文をキャンセル";
+
+/* Order status badge. */
+"Cancelled" = "キャンセル済み";
+
 /* Dismiss button on alerts and sheets. */
 "Close" = "閉じる";
 
+/* Order status badge. */
+"Confirmed" = "確認済み";
+
+/* Row label on the order detail screen. */
+"Customer" = "お客様";
+
+/* Order status badge. */
+"Delivered" = "配達済み";
+
+/* Email field placeholder. */
+"Email" = "メールアドレス";
+
 /* Default alert title for AlertState(error:). One word — check it is not truncated in the alert. */
 "Error" = "エラー";
+
+/* Forgot-password screen title. */
+"Forgot password" = "パスワードをお忘れの方";
+
+/* Link under the sign-in button. */
+"Forgot password?" = "パスワードをお忘れですか？";
 
 /* SignInUseCase validation — email fails the format check. */
 "Invalid email address." = "メールアドレスが正しくありません。";
@@ -15,17 +42,59 @@
 /* Title of the in-app language picker, and the toolbar button that opens it. */
 "Language" = "言語";
 
+/* Shown while the order list loads. */
+"Loading orders" = "注文を読み込み中";
+
 /* AppError.offline — shown on the error state view and in alerts. */
 "No internet connection. Please try again." = "インターネット接続がありません。もう一度お試しください。";
+
+/* Empty state title on the order list. */
+"No orders yet" = "注文はまだありません";
+
+/* Toast after an order is cancelled. */
+"Order cancelled" = "注文をキャンセルしました";
+
+/* Row label on the order detail screen. */
+"Order code" = "注文番号";
+
+/* Row label on the order detail screen. */
+"Order date" = "注文日";
+
+/* Order detail screen title. */
+"Order detail" = "注文詳細";
+
+/* Order history screen title. */
+"Order history" = "注文履歴";
+
+/* Order list screen title. */
+"Orders" = "注文";
+
+/* Password field placeholder. */
+"Password" = "パスワード";
 
 /* SignInUseCase validation. The 6 is a fixed business rule, so no plural variant is needed. */
 "Password must be at least 6 characters." = "パスワードは6文字以上で入力してください。";
 
+/* Order status badge. */
+"Pending" = "確認待ち";
+
 /* SignInUseCase validation — empty email field. */
 "Please enter your email." = "メールアドレスを入力してください。";
 
+/* Placeholder body on template screens. */
+"Replace this with your real screen." = "ここを実際の画面に置き換えてください。";
+
 /* Button on the error state view. Worked example: every language this app declares is filled in here, and tools/check-l10n.sh fails if any is missing. */
 "Retry" = "再試行";
+
+/* Search field prompt on the order list. */
+"Search by order code" = "注文番号で検索";
+
+/* Order status badge — on its way. */
+"Shipping" = "配送中";
+
+/* Sign-in screen title and the submit button. */
+"Sign in" = "ログイン";
 
 /* AppError.unknown — deliberately generic; the technical detail goes to the log via `diagnostic`. */
 "Something went wrong. Please try again." = "エラーが発生しました。もう一度お試しください。";
@@ -35,6 +104,15 @@
 
 /* AppError.decoding — a backend contract change; never actionable by the user. */
 "The server returned invalid data. Please try again later." = "サーバーから無効なデータが返されました。しばらくしてからお試しください。";
+
+/* Row label on the order detail screen — the order total. */
+"Total" = "合計";
+
+/* Forgot-password screen. %@ is the email the user typed. */
+"We will send instructions to %@." = "%@ に手順をお送りします。";
+
+/* Empty state body on the order list. */
+"Your orders will appear here." = "注文はここに表示されます。";
 
 /* AppError.unauthorized — SessionController handles the sign-out; no screen shows its own message. */
 "Your session has expired." = "セッションの有効期限が切れました。";

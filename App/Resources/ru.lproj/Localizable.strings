@@ -3,11 +3,38 @@
    Mọi key phải có mặt ở CẢ 19 file, với giá trị đã dịch —
    tools/check-l10n.sh fail nếu thiếu một key hoặc một ngôn ngữ. */
 
+/* Confirmation body before cancelling an order. */
+"Are you sure you want to cancel this order? This cannot be undone." = "Отменить этот заказ? Действие необратимо.";
+
+/* Destructive button, its confirmation title, and the confirm action. */
+"Cancel order" = "Отменить заказ";
+
+/* Order status badge. */
+"Cancelled" = "Отменён";
+
 /* Dismiss button on alerts and sheets. */
 "Close" = "Закрыть";
 
+/* Order status badge. */
+"Confirmed" = "Подтверждён";
+
+/* Row label on the order detail screen. */
+"Customer" = "Клиент";
+
+/* Order status badge. */
+"Delivered" = "Доставлен";
+
+/* Email field placeholder. */
+"Email" = "Эл. почта";
+
 /* Default alert title for AlertState(error:). One word — check it is not truncated in the alert. */
 "Error" = "Ошибка";
+
+/* Forgot-password screen title. */
+"Forgot password" = "Восстановление пароля";
+
+/* Link under the sign-in button. */
+"Forgot password?" = "Забыли пароль?";
 
 /* SignInUseCase validation — email fails the format check. */
 "Invalid email address." = "Неверный адрес электронной почты.";
@@ -15,17 +42,59 @@
 /* Title of the in-app language picker, and the toolbar button that opens it. */
 "Language" = "Язык";
 
+/* Shown while the order list loads. */
+"Loading orders" = "Загрузка заказов";
+
 /* AppError.offline — shown on the error state view and in alerts. */
 "No internet connection. Please try again." = "Нет подключения к интернету. Попробуйте снова.";
+
+/* Empty state title on the order list. */
+"No orders yet" = "Заказов пока нет";
+
+/* Toast after an order is cancelled. */
+"Order cancelled" = "Заказ отменён";
+
+/* Row label on the order detail screen. */
+"Order code" = "Номер заказа";
+
+/* Row label on the order detail screen. */
+"Order date" = "Дата заказа";
+
+/* Order detail screen title. */
+"Order detail" = "Детали заказа";
+
+/* Order history screen title. */
+"Order history" = "История заказов";
+
+/* Order list screen title. */
+"Orders" = "Заказы";
+
+/* Password field placeholder. */
+"Password" = "Пароль";
 
 /* SignInUseCase validation. The 6 is a fixed business rule, so no plural variant is needed. */
 "Password must be at least 6 characters." = "Пароль должен содержать не менее 6 символов.";
 
+/* Order status badge. */
+"Pending" = "Ожидает";
+
 /* SignInUseCase validation — empty email field. */
 "Please enter your email." = "Введите адрес электронной почты.";
 
+/* Placeholder body on template screens. */
+"Replace this with your real screen." = "Замените это своим настоящим экраном.";
+
 /* Button on the error state view. Worked example: every language this app declares is filled in here, and tools/check-l10n.sh fails if any is missing. */
 "Retry" = "Повторить";
+
+/* Search field prompt on the order list. */
+"Search by order code" = "Поиск по номеру заказа";
+
+/* Order status badge — on its way. */
+"Shipping" = "В доставке";
+
+/* Sign-in screen title and the submit button. */
+"Sign in" = "Войти";
 
 /* AppError.unknown — deliberately generic; the technical detail goes to the log via `diagnostic`. */
 "Something went wrong. Please try again." = "Что-то пошло не так. Попробуйте снова.";
@@ -35,6 +104,15 @@
 
 /* AppError.decoding — a backend contract change; never actionable by the user. */
 "The server returned invalid data. Please try again later." = "Сервер вернул неверные данные. Попробуйте позже.";
+
+/* Row label on the order detail screen — the order total. */
+"Total" = "Итого";
+
+/* Forgot-password screen. %@ is the email the user typed. */
+"We will send instructions to %@." = "Мы отправим инструкции на %@.";
+
+/* Empty state body on the order list. */
+"Your orders will appear here." = "Здесь появятся ваши заказы.";
 
 /* AppError.unauthorized — SessionController handles the sign-out; no screen shows its own message. */
 "Your session has expired." = "Срок действия сеанса истёк.";

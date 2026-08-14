@@ -3,11 +3,38 @@
    Mọi key phải có mặt ở CẢ 19 file, với giá trị đã dịch —
    tools/check-l10n.sh fail nếu thiếu một key hoặc một ngôn ngữ. */
 
+/* Confirmation body before cancelling an order. */
+"Are you sure you want to cancel this order? This cannot be undone." = "Yakin ingin membatalkan pesanan ini? Tindakan ini tidak dapat dibatalkan.";
+
+/* Destructive button, its confirmation title, and the confirm action. */
+"Cancel order" = "Batalkan pesanan";
+
+/* Order status badge. */
+"Cancelled" = "Dibatalkan";
+
 /* Dismiss button on alerts and sheets. */
 "Close" = "Tutup";
 
+/* Order status badge. */
+"Confirmed" = "Dikonfirmasi";
+
+/* Row label on the order detail screen. */
+"Customer" = "Pelanggan";
+
+/* Order status badge. */
+"Delivered" = "Terkirim";
+
+/* Email field placeholder. */
+"Email" = "Email";
+
 /* Default alert title for AlertState(error:). One word — check it is not truncated in the alert. */
 "Error" = "Kesalahan";
+
+/* Forgot-password screen title. */
+"Forgot password" = "Lupa kata sandi";
+
+/* Link under the sign-in button. */
+"Forgot password?" = "Lupa kata sandi?";
 
 /* SignInUseCase validation — email fails the format check. */
 "Invalid email address." = "Alamat email tidak valid.";
@@ -15,17 +42,59 @@
 /* Title of the in-app language picker, and the toolbar button that opens it. */
 "Language" = "Bahasa";
 
+/* Shown while the order list loads. */
+"Loading orders" = "Memuat pesanan";
+
 /* AppError.offline — shown on the error state view and in alerts. */
 "No internet connection. Please try again." = "Tidak ada koneksi internet. Silakan coba lagi.";
+
+/* Empty state title on the order list. */
+"No orders yet" = "Belum ada pesanan";
+
+/* Toast after an order is cancelled. */
+"Order cancelled" = "Pesanan dibatalkan";
+
+/* Row label on the order detail screen. */
+"Order code" = "Kode pesanan";
+
+/* Row label on the order detail screen. */
+"Order date" = "Tanggal pesanan";
+
+/* Order detail screen title. */
+"Order detail" = "Detail pesanan";
+
+/* Order history screen title. */
+"Order history" = "Riwayat pesanan";
+
+/* Order list screen title. */
+"Orders" = "Pesanan";
+
+/* Password field placeholder. */
+"Password" = "Kata sandi";
 
 /* SignInUseCase validation. The 6 is a fixed business rule, so no plural variant is needed. */
 "Password must be at least 6 characters." = "Kata sandi harus minimal 6 karakter.";
 
+/* Order status badge. */
+"Pending" = "Menunggu";
+
 /* SignInUseCase validation — empty email field. */
 "Please enter your email." = "Silakan masukkan email Anda.";
 
+/* Placeholder body on template screens. */
+"Replace this with your real screen." = "Ganti ini dengan layar Anda yang sebenarnya.";
+
 /* Button on the error state view. Worked example: every language this app declares is filled in here, and tools/check-l10n.sh fails if any is missing. */
 "Retry" = "Coba lagi";
+
+/* Search field prompt on the order list. */
+"Search by order code" = "Cari berdasarkan kode pesanan";
+
+/* Order status badge — on its way. */
+"Shipping" = "Dikirim";
+
+/* Sign-in screen title and the submit button. */
+"Sign in" = "Masuk";
 
 /* AppError.unknown — deliberately generic; the technical detail goes to the log via `diagnostic`. */
 "Something went wrong. Please try again." = "Terjadi kesalahan. Silakan coba lagi.";
@@ -35,6 +104,15 @@
 
 /* AppError.decoding — a backend contract change; never actionable by the user. */
 "The server returned invalid data. Please try again later." = "Server mengirim data yang tidak valid. Silakan coba lagi nanti.";
+
+/* Row label on the order detail screen — the order total. */
+"Total" = "Total";
+
+/* Forgot-password screen. %@ is the email the user typed. */
+"We will send instructions to %@." = "Kami akan mengirim petunjuk ke %@.";
+
+/* Empty state body on the order list. */
+"Your orders will appear here." = "Pesanan Anda akan muncul di sini.";
 
 /* AppError.unauthorized — SessionController handles the sign-out; no screen shows its own message. */
 "Your session has expired." = "Sesi Anda telah berakhir.";

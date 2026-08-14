@@ -15,14 +15,14 @@ struct OrderListView: View {
     var body: some View {
         LoadableContent(
             state: viewModel.state.orders,
-            loadingMessage: "Đang tải đơn hàng",
+            loadingMessage: "Loading orders",
             onRetry: { viewModel.send(.retryTapped) }
         ) { _ in
             loadedContent
         }
         .background(AppColor.Surface.background)
-        .navigationTitle("Đơn hàng")
-        .searchable(text: queryBinding, prompt: "Tìm theo mã đơn")
+        .navigationTitle("Orders")
+        .searchable(text: queryBinding, prompt: "Search by order code")
         .task { viewModel.send(.appeared) }
         .refreshable { await refresh() }
         .alert(viewModel.state.alert) { viewModel.send(.alertDismissed) }
@@ -46,8 +46,8 @@ struct OrderListView: View {
         if viewModel.state.showsEmptyState {
             EmptyStateView(
                 icon: "shippingbox",
-                title: "Chưa có đơn hàng",
-                message: "Đơn hàng của bạn sẽ xuất hiện ở đây."
+                title: "No orders yet",
+                message: "Your orders will appear here."
             )
         } else {
             OrderRows(

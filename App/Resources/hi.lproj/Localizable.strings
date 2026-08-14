@@ -3,11 +3,38 @@
    Mọi key phải có mặt ở CẢ 19 file, với giá trị đã dịch —
    tools/check-l10n.sh fail nếu thiếu một key hoặc một ngôn ngữ. */
 
+/* Confirmation body before cancelling an order. */
+"Are you sure you want to cancel this order? This cannot be undone." = "क्या आप वाकई यह ऑर्डर रद्द करना चाहते हैं? इसे वापस नहीं किया जा सकता।";
+
+/* Destructive button, its confirmation title, and the confirm action. */
+"Cancel order" = "ऑर्डर रद्द करें";
+
+/* Order status badge. */
+"Cancelled" = "रद्द";
+
 /* Dismiss button on alerts and sheets. */
 "Close" = "बंद करें";
 
+/* Order status badge. */
+"Confirmed" = "पुष्ट";
+
+/* Row label on the order detail screen. */
+"Customer" = "ग्राहक";
+
+/* Order status badge. */
+"Delivered" = "डिलीवर हो गया";
+
+/* Email field placeholder. */
+"Email" = "ईमेल";
+
 /* Default alert title for AlertState(error:). One word — check it is not truncated in the alert. */
 "Error" = "त्रुटि";
+
+/* Forgot-password screen title. */
+"Forgot password" = "पासवर्ड भूल गए";
+
+/* Link under the sign-in button. */
+"Forgot password?" = "पासवर्ड भूल गए?";
 
 /* SignInUseCase validation — email fails the format check. */
 "Invalid email address." = "ईमेल पता अमान्य है।";
@@ -15,17 +42,59 @@
 /* Title of the in-app language picker, and the toolbar button that opens it. */
 "Language" = "भाषा";
 
+/* Shown while the order list loads. */
+"Loading orders" = "ऑर्डर लोड हो रहे हैं";
+
 /* AppError.offline — shown on the error state view and in alerts. */
 "No internet connection. Please try again." = "इंटरनेट कनेक्शन नहीं है। कृपया फिर कोशिश करें।";
+
+/* Empty state title on the order list. */
+"No orders yet" = "अभी कोई ऑर्डर नहीं";
+
+/* Toast after an order is cancelled. */
+"Order cancelled" = "ऑर्डर रद्द कर दिया गया";
+
+/* Row label on the order detail screen. */
+"Order code" = "ऑर्डर कोड";
+
+/* Row label on the order detail screen. */
+"Order date" = "ऑर्डर की तारीख";
+
+/* Order detail screen title. */
+"Order detail" = "ऑर्डर विवरण";
+
+/* Order history screen title. */
+"Order history" = "ऑर्डर इतिहास";
+
+/* Order list screen title. */
+"Orders" = "ऑर्डर";
+
+/* Password field placeholder. */
+"Password" = "पासवर्ड";
 
 /* SignInUseCase validation. The 6 is a fixed business rule, so no plural variant is needed. */
 "Password must be at least 6 characters." = "पासवर्ड में कम से कम 6 अक्षर होने चाहिए।";
 
+/* Order status badge. */
+"Pending" = "लंबित";
+
 /* SignInUseCase validation — empty email field. */
 "Please enter your email." = "कृपया अपना ईमेल दर्ज करें।";
 
+/* Placeholder body on template screens. */
+"Replace this with your real screen." = "इसे अपनी असली स्क्रीन से बदलें।";
+
 /* Button on the error state view. Worked example: every language this app declares is filled in here, and tools/check-l10n.sh fails if any is missing. */
 "Retry" = "फिर कोशिश करें";
+
+/* Search field prompt on the order list. */
+"Search by order code" = "ऑर्डर कोड से खोजें";
+
+/* Order status badge — on its way. */
+"Shipping" = "भेजा जा रहा है";
+
+/* Sign-in screen title and the submit button. */
+"Sign in" = "साइन इन करें";
 
 /* AppError.unknown — deliberately generic; the technical detail goes to the log via `diagnostic`. */
 "Something went wrong. Please try again." = "कुछ गड़बड़ हो गई। कृपया फिर कोशिश करें।";
@@ -35,6 +104,15 @@
 
 /* AppError.decoding — a backend contract change; never actionable by the user. */
 "The server returned invalid data. Please try again later." = "सर्वर से अमान्य डेटा मिला। कृपया बाद में कोशिश करें।";
+
+/* Row label on the order detail screen — the order total. */
+"Total" = "कुल";
+
+/* Forgot-password screen. %@ is the email the user typed. */
+"We will send instructions to %@." = "हम %@ पर निर्देश भेजेंगे।";
+
+/* Empty state body on the order list. */
+"Your orders will appear here." = "आपके ऑर्डर यहाँ दिखाई देंगे।";
 
 /* AppError.unauthorized — SessionController handles the sign-out; no screen shows its own message. */
 "Your session has expired." = "आपका सत्र समाप्त हो गया है।";

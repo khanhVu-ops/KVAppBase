@@ -3,11 +3,38 @@
    Mọi key phải có mặt ở CẢ 19 file, với giá trị đã dịch —
    tools/check-l10n.sh fail nếu thiếu một key hoặc một ngôn ngữ. */
 
+/* Confirmation body before cancelling an order. */
+"Are you sure you want to cancel this order? This cannot be undone." = "هل تريد بالتأكيد إلغاء هذا الطلب؟ لا يمكن التراجع عن ذلك.";
+
+/* Destructive button, its confirmation title, and the confirm action. */
+"Cancel order" = "إلغاء الطلب";
+
+/* Order status badge. */
+"Cancelled" = "ملغى";
+
 /* Dismiss button on alerts and sheets. */
 "Close" = "إغلاق";
 
+/* Order status badge. */
+"Confirmed" = "مؤكد";
+
+/* Row label on the order detail screen. */
+"Customer" = "العميل";
+
+/* Order status badge. */
+"Delivered" = "تم التسليم";
+
+/* Email field placeholder. */
+"Email" = "البريد الإلكتروني";
+
 /* Default alert title for AlertState(error:). One word — check it is not truncated in the alert. */
 "Error" = "خطأ";
+
+/* Forgot-password screen title. */
+"Forgot password" = "نسيت كلمة المرور";
+
+/* Link under the sign-in button. */
+"Forgot password?" = "هل نسيت كلمة المرور؟";
 
 /* SignInUseCase validation — email fails the format check. */
 "Invalid email address." = "عنوان بريد إلكتروني غير صالح.";
@@ -15,17 +42,59 @@
 /* Title of the in-app language picker, and the toolbar button that opens it. */
 "Language" = "اللغة";
 
+/* Shown while the order list loads. */
+"Loading orders" = "جارٍ تحميل الطلبات";
+
 /* AppError.offline — shown on the error state view and in alerts. */
 "No internet connection. Please try again." = "لا يوجد اتصال بالإنترنت. حاول مرة أخرى.";
+
+/* Empty state title on the order list. */
+"No orders yet" = "لا توجد طلبات بعد";
+
+/* Toast after an order is cancelled. */
+"Order cancelled" = "تم إلغاء الطلب";
+
+/* Row label on the order detail screen. */
+"Order code" = "رقم الطلب";
+
+/* Row label on the order detail screen. */
+"Order date" = "تاريخ الطلب";
+
+/* Order detail screen title. */
+"Order detail" = "تفاصيل الطلب";
+
+/* Order history screen title. */
+"Order history" = "سجل الطلبات";
+
+/* Order list screen title. */
+"Orders" = "الطلبات";
+
+/* Password field placeholder. */
+"Password" = "كلمة المرور";
 
 /* SignInUseCase validation. The 6 is a fixed business rule, so no plural variant is needed. */
 "Password must be at least 6 characters." = "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.";
 
+/* Order status badge. */
+"Pending" = "قيد الانتظار";
+
 /* SignInUseCase validation — empty email field. */
 "Please enter your email." = "الرجاء إدخال بريدك الإلكتروني.";
 
+/* Placeholder body on template screens. */
+"Replace this with your real screen." = "استبدل هذا بشاشتك الحقيقية.";
+
 /* Button on the error state view. Worked example: every language this app declares is filled in here, and tools/check-l10n.sh fails if any is missing. */
 "Retry" = "إعادة المحاولة";
+
+/* Search field prompt on the order list. */
+"Search by order code" = "البحث برقم الطلب";
+
+/* Order status badge — on its way. */
+"Shipping" = "قيد الشحن";
+
+/* Sign-in screen title and the submit button. */
+"Sign in" = "تسجيل الدخول";
 
 /* AppError.unknown — deliberately generic; the technical detail goes to the log via `diagnostic`. */
 "Something went wrong. Please try again." = "حدث خطأ ما. حاول مرة أخرى.";
@@ -35,6 +104,15 @@
 
 /* AppError.decoding — a backend contract change; never actionable by the user. */
 "The server returned invalid data. Please try again later." = "أعاد الخادم بيانات غير صالحة. حاول لاحقًا.";
+
+/* Row label on the order detail screen — the order total. */
+"Total" = "الإجمالي";
+
+/* Forgot-password screen. %@ is the email the user typed. */
+"We will send instructions to %@." = "سنرسل التعليمات إلى %@.";
+
+/* Empty state body on the order list. */
+"Your orders will appear here." = "ستظهر طلباتك هنا.";
 
 /* AppError.unauthorized — SessionController handles the sign-out; no screen shows its own message. */
 "Your session has expired." = "انتهت صلاحية جلستك.";

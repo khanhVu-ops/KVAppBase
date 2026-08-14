@@ -1,9 +1,9 @@
 import SwiftUI
 
 struct LoadingView: View {
-    private let message: String?
+    private let message: LocalizedStringResource?
 
-    init(message: String? = nil) {
+    init(message: LocalizedStringResource? = nil) {
         self.message = message
     }
 
@@ -23,7 +23,7 @@ struct LoadingView: View {
 }
 
 #Preview("Đang tải") {
-    LoadingView(message: "Đang tải đơn hàng")
+    LoadingView(message: "Loading orders")
 }
 
 #Preview("Không có message") {

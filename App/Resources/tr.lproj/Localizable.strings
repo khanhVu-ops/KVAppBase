@@ -3,11 +3,38 @@
    Mọi key phải có mặt ở CẢ 19 file, với giá trị đã dịch —
    tools/check-l10n.sh fail nếu thiếu một key hoặc một ngôn ngữ. */
 
+/* Confirmation body before cancelling an order. */
+"Are you sure you want to cancel this order? This cannot be undone." = "Bu siparişi iptal etmek istediğinize emin misiniz? Bu işlem geri alınamaz.";
+
+/* Destructive button, its confirmation title, and the confirm action. */
+"Cancel order" = "Siparişi iptal et";
+
+/* Order status badge. */
+"Cancelled" = "İptal edildi";
+
 /* Dismiss button on alerts and sheets. */
 "Close" = "Kapat";
 
+/* Order status badge. */
+"Confirmed" = "Onaylandı";
+
+/* Row label on the order detail screen. */
+"Customer" = "Müşteri";
+
+/* Order status badge. */
+"Delivered" = "Teslim edildi";
+
+/* Email field placeholder. */
+"Email" = "E-posta";
+
 /* Default alert title for AlertState(error:). One word — check it is not truncated in the alert. */
 "Error" = "Hata";
+
+/* Forgot-password screen title. */
+"Forgot password" = "Şifremi unuttum";
+
+/* Link under the sign-in button. */
+"Forgot password?" = "Şifrenizi mi unuttunuz?";
 
 /* SignInUseCase validation — email fails the format check. */
 "Invalid email address." = "Geçersiz e-posta adresi.";
@@ -15,17 +42,59 @@
 /* Title of the in-app language picker, and the toolbar button that opens it. */
 "Language" = "Dil";
 
+/* Shown while the order list loads. */
+"Loading orders" = "Siparişler yükleniyor";
+
 /* AppError.offline — shown on the error state view and in alerts. */
 "No internet connection. Please try again." = "İnternet bağlantısı yok. Lütfen tekrar deneyin.";
+
+/* Empty state title on the order list. */
+"No orders yet" = "Henüz sipariş yok";
+
+/* Toast after an order is cancelled. */
+"Order cancelled" = "Sipariş iptal edildi";
+
+/* Row label on the order detail screen. */
+"Order code" = "Sipariş kodu";
+
+/* Row label on the order detail screen. */
+"Order date" = "Sipariş tarihi";
+
+/* Order detail screen title. */
+"Order detail" = "Sipariş detayı";
+
+/* Order history screen title. */
+"Order history" = "Sipariş geçmişi";
+
+/* Order list screen title. */
+"Orders" = "Siparişler";
+
+/* Password field placeholder. */
+"Password" = "Şifre";
 
 /* SignInUseCase validation. The 6 is a fixed business rule, so no plural variant is needed. */
 "Password must be at least 6 characters." = "Şifre en az 6 karakter olmalıdır.";
 
+/* Order status badge. */
+"Pending" = "Beklemede";
+
 /* SignInUseCase validation — empty email field. */
 "Please enter your email." = "Lütfen e-posta adresinizi girin.";
 
+/* Placeholder body on template screens. */
+"Replace this with your real screen." = "Burayı gerçek ekranınızla değiştirin.";
+
 /* Button on the error state view. Worked example: every language this app declares is filled in here, and tools/check-l10n.sh fails if any is missing. */
 "Retry" = "Yeniden dene";
+
+/* Search field prompt on the order list. */
+"Search by order code" = "Sipariş koduna göre ara";
+
+/* Order status badge — on its way. */
+"Shipping" = "Kargoda";
+
+/* Sign-in screen title and the submit button. */
+"Sign in" = "Giriş yap";
 
 /* AppError.unknown — deliberately generic; the technical detail goes to the log via `diagnostic`. */
 "Something went wrong. Please try again." = "Bir hata oluştu. Lütfen tekrar deneyin.";
@@ -35,6 +104,15 @@
 
 /* AppError.decoding — a backend contract change; never actionable by the user. */
 "The server returned invalid data. Please try again later." = "Sunucu geçersiz veri döndürdü. Lütfen daha sonra tekrar deneyin.";
+
+/* Row label on the order detail screen — the order total. */
+"Total" = "Toplam";
+
+/* Forgot-password screen. %@ is the email the user typed. */
+"We will send instructions to %@." = "Talimatları %@ adresine göndereceğiz.";
+
+/* Empty state body on the order list. */
+"Your orders will appear here." = "Siparişleriniz burada görünecek.";
 
 /* AppError.unauthorized — SessionController handles the sign-out; no screen shows its own message. */
 "Your session has expired." = "Oturumunuzun süresi doldu.";

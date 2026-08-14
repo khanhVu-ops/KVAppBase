@@ -84,13 +84,13 @@ struct OrderStatusBadge: View, Equatable {
 
     nonisolated static func == (lhs: Self, rhs: Self) -> Bool { lhs.status == rhs.status }
 
-    private var label: String {
+    private var label: LocalizedStringResource {
         switch status {
-        case .pending:   return "Chờ xác nhận"
-        case .confirmed: return "Đã xác nhận"
-        case .shipping:  return "Đang giao"
-        case .delivered: return "Đã giao"
-        case .cancelled: return "Đã huỷ"
+        case .pending:   return "Pending"
+        case .confirmed: return "Confirmed"
+        case .shipping:  return "Shipping"
+        case .delivered: return "Delivered"
+        case .cancelled: return "Cancelled"
         }
     }
 

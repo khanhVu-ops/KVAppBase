@@ -1,31 +1,11 @@
 # Nợ localization của template — danh sách này chỉ được CO LẠI.
 #
-# Mỗi dòng là một chuỗi user-facing đang hardcode trong Features/ hoặc DesignSystem/,
-# có từ trước khi app khai 19 ngôn ngữ. `tools/check-l10n.sh` cho chúng đi qua, và
-# fail mọi chuỗi mới không có trong đây — nên nợ cũ không chặn việc, còn nợ mới thì
-# không thêm được.
+# Hiện tại: **trống**. Mọi chuỗi user-facing trong Features/ và DesignSystem/ đã đi qua
+# bảng dịch, nên đổi ngôn ngữ trong app là cả màn hình đổi theo — đó cũng là cách duy
+# nhất để nhìn thấy cơ chế có chạy hay không.
 #
-# Trả một dòng: thêm key vào cả 19 file App/Resources/<lang>.lproj/Localizable.strings,
-# đổi code sang dùng key English, rồi **xoá dòng đó khỏi file này**. Script fail nếu
-# một dòng ở đây không còn khớp source nào — giấy nợ đã trả phải xé, nếu không lần sau
-# không ai biết con số thật.
+# Nếu phải thêm một dòng vào đây: đó là một chuỗi hardcode mới, và nó chỉ được phép khi
+# có lý do viết ra. Thêm dòng là nở nợ, và script không chặn được điều đó — chỉ người
+# review chặn được.
 #
-# Danh sách này chỉ là nợ của tầng View. `Core`/`Domain` đã trả xong: text ở đó đi qua
-# `String(localized:)` và script canh cả hai chiều — key phải có trong catalog, và
-# `return "..."` thô thì fail. `Data/` vẫn ngoài phạm vi (đầy literal wire-level), và
-# `accessibilityLabel` thì chưa ai canh. Đừng dùng khoảng trống đó như một sự cho phép.
-Bạn có chắc muốn huỷ đơn này? Thao tác không thể hoàn tác.
-Chi tiết đơn
-Chưa có đơn hàng
-Email
-Huỷ đơn hàng
-Lịch sử
-Lịch sử đơn hàng
-Mật khẩu
-Quên mật khẩu
-Quên mật khẩu?
-Thay nội dung này bằng màn hình thật của bạn.
-Đã huỷ đơn hàng
-Đăng nhập
-Đơn hàng
-Đơn hàng của bạn sẽ xuất hiện ở đây.
+# Chuỗi trong Data/ và accessibilityLabel vẫn ngoài phạm vi script — xem skill `ios-l10n`.

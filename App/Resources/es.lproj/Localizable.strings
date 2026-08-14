@@ -3,11 +3,38 @@
    Mọi key phải có mặt ở CẢ 19 file, với giá trị đã dịch —
    tools/check-l10n.sh fail nếu thiếu một key hoặc một ngôn ngữ. */
 
+/* Confirmation body before cancelling an order. */
+"Are you sure you want to cancel this order? This cannot be undone." = "¿Seguro que quieres cancelar este pedido? No se puede deshacer.";
+
+/* Destructive button, its confirmation title, and the confirm action. */
+"Cancel order" = "Cancelar pedido";
+
+/* Order status badge. */
+"Cancelled" = "Cancelado";
+
 /* Dismiss button on alerts and sheets. */
 "Close" = "Cerrar";
 
+/* Order status badge. */
+"Confirmed" = "Confirmado";
+
+/* Row label on the order detail screen. */
+"Customer" = "Cliente";
+
+/* Order status badge. */
+"Delivered" = "Entregado";
+
+/* Email field placeholder. */
+"Email" = "Correo electrónico";
+
 /* Default alert title for AlertState(error:). One word — check it is not truncated in the alert. */
 "Error" = "Error";
+
+/* Forgot-password screen title. */
+"Forgot password" = "Recuperar contraseña";
+
+/* Link under the sign-in button. */
+"Forgot password?" = "¿Olvidaste tu contraseña?";
 
 /* SignInUseCase validation — email fails the format check. */
 "Invalid email address." = "Dirección de correo electrónico no válida.";
@@ -15,17 +42,59 @@
 /* Title of the in-app language picker, and the toolbar button that opens it. */
 "Language" = "Idioma";
 
+/* Shown while the order list loads. */
+"Loading orders" = "Cargando pedidos";
+
 /* AppError.offline — shown on the error state view and in alerts. */
 "No internet connection. Please try again." = "Sin conexión a Internet. Inténtalo de nuevo.";
+
+/* Empty state title on the order list. */
+"No orders yet" = "Aún no hay pedidos";
+
+/* Toast after an order is cancelled. */
+"Order cancelled" = "Pedido cancelado";
+
+/* Row label on the order detail screen. */
+"Order code" = "Código de pedido";
+
+/* Row label on the order detail screen. */
+"Order date" = "Fecha del pedido";
+
+/* Order detail screen title. */
+"Order detail" = "Detalle del pedido";
+
+/* Order history screen title. */
+"Order history" = "Historial de pedidos";
+
+/* Order list screen title. */
+"Orders" = "Pedidos";
+
+/* Password field placeholder. */
+"Password" = "Contraseña";
 
 /* SignInUseCase validation. The 6 is a fixed business rule, so no plural variant is needed. */
 "Password must be at least 6 characters." = "La contraseña debe tener al menos 6 caracteres.";
 
+/* Order status badge. */
+"Pending" = "Pendiente";
+
 /* SignInUseCase validation — empty email field. */
 "Please enter your email." = "Introduce tu correo electrónico.";
 
+/* Placeholder body on template screens. */
+"Replace this with your real screen." = "Sustituye esto por tu pantalla real.";
+
 /* Button on the error state view. Worked example: every language this app declares is filled in here, and tools/check-l10n.sh fails if any is missing. */
 "Retry" = "Reintentar";
+
+/* Search field prompt on the order list. */
+"Search by order code" = "Buscar por código de pedido";
+
+/* Order status badge — on its way. */
+"Shipping" = "En envío";
+
+/* Sign-in screen title and the submit button. */
+"Sign in" = "Iniciar sesión";
 
 /* AppError.unknown — deliberately generic; the technical detail goes to the log via `diagnostic`. */
 "Something went wrong. Please try again." = "Se ha producido un error. Inténtalo de nuevo.";
@@ -35,6 +104,15 @@
 
 /* AppError.decoding — a backend contract change; never actionable by the user. */
 "The server returned invalid data. Please try again later." = "El servidor devolvió datos no válidos. Inténtalo más tarde.";
+
+/* Row label on the order detail screen — the order total. */
+"Total" = "Total";
+
+/* Forgot-password screen. %@ is the email the user typed. */
+"We will send instructions to %@." = "Enviaremos las instrucciones a %@.";
+
+/* Empty state body on the order list. */
+"Your orders will appear here." = "Tus pedidos aparecerán aquí.";
 
 /* AppError.unauthorized — SessionController handles the sign-out; no screen shows its own message. */
 "Your session has expired." = "Tu sesión ha caducado.";

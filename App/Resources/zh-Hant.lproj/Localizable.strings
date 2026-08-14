@@ -3,11 +3,38 @@
    Mọi key phải có mặt ở CẢ 19 file, với giá trị đã dịch —
    tools/check-l10n.sh fail nếu thiếu một key hoặc một ngôn ngữ. */
 
+/* Confirmation body before cancelling an order. */
+"Are you sure you want to cancel this order? This cannot be undone." = "確定要取消此訂單嗎？此操作無法復原。";
+
+/* Destructive button, its confirmation title, and the confirm action. */
+"Cancel order" = "取消訂單";
+
+/* Order status badge. */
+"Cancelled" = "已取消";
+
 /* Dismiss button on alerts and sheets. */
 "Close" = "關閉";
 
+/* Order status badge. */
+"Confirmed" = "已確認";
+
+/* Row label on the order detail screen. */
+"Customer" = "客戶";
+
+/* Order status badge. */
+"Delivered" = "已送達";
+
+/* Email field placeholder. */
+"Email" = "電子郵件";
+
 /* Default alert title for AlertState(error:). One word — check it is not truncated in the alert. */
 "Error" = "錯誤";
+
+/* Forgot-password screen title. */
+"Forgot password" = "忘記密碼";
+
+/* Link under the sign-in button. */
+"Forgot password?" = "忘記密碼？";
 
 /* SignInUseCase validation — email fails the format check. */
 "Invalid email address." = "電子郵件地址無效。";
@@ -15,17 +42,59 @@
 /* Title of the in-app language picker, and the toolbar button that opens it. */
 "Language" = "語言";
 
+/* Shown while the order list loads. */
+"Loading orders" = "正在載入訂單";
+
 /* AppError.offline — shown on the error state view and in alerts. */
 "No internet connection. Please try again." = "沒有網路連線，請重試。";
+
+/* Empty state title on the order list. */
+"No orders yet" = "尚無訂單";
+
+/* Toast after an order is cancelled. */
+"Order cancelled" = "訂單已取消";
+
+/* Row label on the order detail screen. */
+"Order code" = "訂單編號";
+
+/* Row label on the order detail screen. */
+"Order date" = "下單日期";
+
+/* Order detail screen title. */
+"Order detail" = "訂單詳情";
+
+/* Order history screen title. */
+"Order history" = "訂單紀錄";
+
+/* Order list screen title. */
+"Orders" = "訂單";
+
+/* Password field placeholder. */
+"Password" = "密碼";
 
 /* SignInUseCase validation. The 6 is a fixed business rule, so no plural variant is needed. */
 "Password must be at least 6 characters." = "密碼至少需要 6 個字元。";
 
+/* Order status badge. */
+"Pending" = "待確認";
+
 /* SignInUseCase validation — empty email field. */
 "Please enter your email." = "請輸入電子郵件地址。";
 
+/* Placeholder body on template screens. */
+"Replace this with your real screen." = "請用你的真實頁面取代此處。";
+
 /* Button on the error state view. Worked example: every language this app declares is filled in here, and tools/check-l10n.sh fails if any is missing. */
 "Retry" = "重試";
+
+/* Search field prompt on the order list. */
+"Search by order code" = "依訂單編號搜尋";
+
+/* Order status badge — on its way. */
+"Shipping" = "配送中";
+
+/* Sign-in screen title and the submit button. */
+"Sign in" = "登入";
 
 /* AppError.unknown — deliberately generic; the technical detail goes to the log via `diagnostic`. */
 "Something went wrong. Please try again." = "發生錯誤，請重試。";
@@ -35,6 +104,15 @@
 
 /* AppError.decoding — a backend contract change; never actionable by the user. */
 "The server returned invalid data. Please try again later." = "伺服器傳回的資料無效，請稍後重試。";
+
+/* Row label on the order detail screen — the order total. */
+"Total" = "合計";
+
+/* Forgot-password screen. %@ is the email the user typed. */
+"We will send instructions to %@." = "我們會將說明寄至 %@。";
+
+/* Empty state body on the order list. */
+"Your orders will appear here." = "你的訂單會顯示在這裡。";
 
 /* AppError.unauthorized — SessionController handles the sign-out; no screen shows its own message. */
 "Your session has expired." = "登入已過期。";

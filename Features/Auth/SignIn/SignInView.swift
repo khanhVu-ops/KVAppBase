@@ -10,7 +10,7 @@ struct SignInView: View {
 
     var body: some View {
         VStack(spacing: Spacing.l) {
-            Text("Đăng nhập")
+            Text("Sign in")
                 .font(AppFont.titleL)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -27,7 +27,7 @@ struct SignInView: View {
                 )
 
                 DebouncedField(
-                    title: "Mật khẩu",
+                    title: "Password",
                     initial: viewModel.state.password,
                     isSecure: true,
                     onCommit: { viewModel.send(.passwordChanged($0)) }
@@ -47,13 +47,13 @@ struct SignInView: View {
                 if viewModel.state.isSubmitting {
                     ProgressView().frame(maxWidth: .infinity)
                 } else {
-                    Text("Đăng nhập").frame(maxWidth: .infinity)
+                    Text("Sign in").frame(maxWidth: .infinity)
                 }
             }
             .buttonStyle(.primary)
             .disabled(!viewModel.state.canSubmit)
 
-            Button("Quên mật khẩu?") { viewModel.send(.forgotPasswordTapped) }
+            Button("Forgot password?") { viewModel.send(.forgotPasswordTapped) }
                 .font(AppFont.caption)
 
             Spacer()
@@ -71,7 +71,7 @@ struct SignInView: View {
 /// character versus one per field.
 struct DebouncedField: View {
 
-    let title: String
+    let title: LocalizedStringResource
     let initial: String
     var keyboard: UIKeyboardType = .default
     var isSecure: Bool = false
@@ -82,11 +82,15 @@ struct DebouncedField: View {
     @FocusState private var isFocused: Bool
 
     var body: some View {
+        // `prompt:` + label, không phải `TextField(title, text:)`: overload nhận
+        // `LocalizedStringResource` cho vị trí đầu chỉ có từ **iOS 26**, nên cách viết
+        // gọn kia không build được ở target 16.0. Init này có từ iOS 15 và còn tốt hơn
+        // một chút — label là thứ VoiceOver đọc, prompt là chữ mờ người dùng thấy.
         Group {
             if isSecure {
-                SecureField(title, text: $text)
+                SecureField(text: $text, prompt: Text(title)) { Text(title) }
             } else {
-                TextField(title, text: $text)
+                TextField(text: $text, prompt: Text(title)) { Text(title) }
                     .keyboardType(keyboard)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
@@ -135,10 +139,10 @@ struct ForgotPasswordView: View {
     var body: some View {
         EmptyStateView(
             icon: "envelope",
-            title: "Quên mật khẩu",
-            message: email.map { "Sẽ gửi hướng dẫn tới \($0)." } ?? "Thay bằng màn hình thật của bạn."
+            title: "Forgot password",
+            message: email.map { "We will send instructions to \($0)." } ?? "Replace this with your real screen."
         )
-        .navigationTitle("Quên mật khẩu")
+        .navigationTitle("Forgot password")
     }
 }
 

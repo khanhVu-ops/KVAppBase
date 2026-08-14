@@ -9,10 +9,10 @@ struct OrderHistoryView: View {
     var body: some View {
         EmptyStateView(
             icon: "clock.arrow.circlepath",
-            title: "Lịch sử đơn hàng",
-            message: "Thay nội dung này bằng màn hình thật của bạn."
+            title: "Order history",
+            message: "Replace this with your real screen."
         )
-        .navigationTitle("Lịch sử")
+        .navigationTitle("Order history")
     }
 }
 

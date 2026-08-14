@@ -3,11 +3,38 @@
    Mọi key phải có mặt ở CẢ 19 file, với giá trị đã dịch —
    tools/check-l10n.sh fail nếu thiếu một key hoặc một ngôn ngữ. */
 
+/* Confirmation body before cancelling an order. */
+"Are you sure you want to cancel this order? This cannot be undone." = "Bạn có chắc muốn huỷ đơn này? Thao tác không thể hoàn tác.";
+
+/* Destructive button, its confirmation title, and the confirm action. */
+"Cancel order" = "Huỷ đơn hàng";
+
+/* Order status badge. */
+"Cancelled" = "Đã huỷ";
+
 /* Dismiss button on alerts and sheets. */
 "Close" = "Đóng";
 
+/* Order status badge. */
+"Confirmed" = "Đã xác nhận";
+
+/* Row label on the order detail screen. */
+"Customer" = "Khách hàng";
+
+/* Order status badge. */
+"Delivered" = "Đã giao";
+
+/* Email field placeholder. */
+"Email" = "Email";
+
 /* Default alert title for AlertState(error:). One word — check it is not truncated in the alert. */
 "Error" = "Lỗi";
+
+/* Forgot-password screen title. */
+"Forgot password" = "Quên mật khẩu";
+
+/* Link under the sign-in button. */
+"Forgot password?" = "Quên mật khẩu?";
 
 /* SignInUseCase validation — email fails the format check. */
 "Invalid email address." = "Email không hợp lệ.";
@@ -15,17 +42,59 @@
 /* Title of the in-app language picker, and the toolbar button that opens it. */
 "Language" = "Ngôn ngữ";
 
+/* Shown while the order list loads. */
+"Loading orders" = "Đang tải đơn hàng";
+
 /* AppError.offline — shown on the error state view and in alerts. */
 "No internet connection. Please try again." = "Không có kết nối mạng. Vui lòng thử lại.";
+
+/* Empty state title on the order list. */
+"No orders yet" = "Chưa có đơn hàng";
+
+/* Toast after an order is cancelled. */
+"Order cancelled" = "Đã huỷ đơn hàng";
+
+/* Row label on the order detail screen. */
+"Order code" = "Mã đơn";
+
+/* Row label on the order detail screen. */
+"Order date" = "Ngày đặt";
+
+/* Order detail screen title. */
+"Order detail" = "Chi tiết đơn";
+
+/* Order history screen title. */
+"Order history" = "Lịch sử đơn hàng";
+
+/* Order list screen title. */
+"Orders" = "Đơn hàng";
+
+/* Password field placeholder. */
+"Password" = "Mật khẩu";
 
 /* SignInUseCase validation. The 6 is a fixed business rule, so no plural variant is needed. */
 "Password must be at least 6 characters." = "Mật khẩu phải có ít nhất 6 ký tự.";
 
+/* Order status badge. */
+"Pending" = "Chờ xác nhận";
+
 /* SignInUseCase validation — empty email field. */
 "Please enter your email." = "Vui lòng nhập email.";
 
+/* Placeholder body on template screens. */
+"Replace this with your real screen." = "Thay nội dung này bằng màn hình thật của bạn.";
+
 /* Button on the error state view. Worked example: every language this app declares is filled in here, and tools/check-l10n.sh fails if any is missing. */
 "Retry" = "Thử lại";
+
+/* Search field prompt on the order list. */
+"Search by order code" = "Tìm theo mã đơn";
+
+/* Order status badge — on its way. */
+"Shipping" = "Đang giao";
+
+/* Sign-in screen title and the submit button. */
+"Sign in" = "Đăng nhập";
 
 /* AppError.unknown — deliberately generic; the technical detail goes to the log via `diagnostic`. */
 "Something went wrong. Please try again." = "Đã có lỗi xảy ra. Vui lòng thử lại.";
@@ -35,6 +104,15 @@
 
 /* AppError.decoding — a backend contract change; never actionable by the user. */
 "The server returned invalid data. Please try again later." = "Dữ liệu trả về không hợp lệ. Vui lòng thử lại sau.";
+
+/* Row label on the order detail screen — the order total. */
+"Total" = "Tổng tiền";
+
+/* Forgot-password screen. %@ is the email the user typed. */
+"We will send instructions to %@." = "Sẽ gửi hướng dẫn tới %@.";
+
+/* Empty state body on the order list. */
+"Your orders will appear here." = "Đơn hàng của bạn sẽ xuất hiện ở đây.";
 
 /* AppError.unauthorized — SessionController handles the sign-out; no screen shows its own message. */
 "Your session has expired." = "Phiên đăng nhập đã hết hạn.";

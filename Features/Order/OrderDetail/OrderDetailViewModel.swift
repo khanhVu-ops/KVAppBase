@@ -72,8 +72,8 @@ final class OrderDetailViewModel: ObservableObject {
 
         case .cancelTapped:
             state.alert = AlertState(
-                title: "Huỷ đơn hàng",
-                message: "Bạn có chắc muốn huỷ đơn này? Thao tác không thể hoàn tác."
+                title: "Cancel order",
+                message: "Are you sure you want to cancel this order? This cannot be undone."
             )
 
         case .cancelConfirmed:
@@ -117,7 +117,7 @@ final class OrderDetailViewModel: ObservableObject {
             do {
                 let order = try await self.repository.cancel(id: self.orderID)
                 self.state.order = .loaded(order)
-                self.toast.success("Đã huỷ đơn hàng")
+                self.toast.success("Order cancelled")
                 self.logger.info("Huỷ đơn thành công", metadata: ["order_id": .public(self.orderID)])
             } catch let error as AppError {
                 self.toast.error(error)

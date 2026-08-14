@@ -10,7 +10,7 @@ import SwiftUI
 struct LoadableContent<Value: Equatable & Sendable, Content: View>: View {
 
     let state: Loadable<Value>
-    var loadingMessage: String?
+    var loadingMessage: LocalizedStringResource?
     let onRetry: () -> Void
     @ViewBuilder let content: (Value) -> Content
 
@@ -27,19 +27,19 @@ struct LoadableContent<Value: Equatable & Sendable, Content: View>: View {
 }
 
 #Preview("Đã tải") {
-    LoadableContent(state: .loaded(Order.samples), loadingMessage: "Đang tải", onRetry: {}) { orders in
+    LoadableContent(state: .loaded(Order.samples), loadingMessage: "Loading orders", onRetry: {}) { orders in
         Text(verbatim: "\(orders.count) đơn hàng")
     }
 }
 
 #Preview("Đang tải") {
-    LoadableContent(state: Loadable<[Order]>.loading, loadingMessage: "Đang tải đơn hàng", onRetry: {}) { _ in
+    LoadableContent(state: Loadable<[Order]>.loading, loadingMessage: "Loading orders", onRetry: {}) { _ in
         EmptyView()
     }
 }
 
 #Preview("Lỗi") {
-    LoadableContent(state: Loadable<[Order]>.failed(.offline), loadingMessage: "Đang tải", onRetry: {}) { _ in
+    LoadableContent(state: Loadable<[Order]>.failed(.offline), loadingMessage: "Loading orders", onRetry: {}) { _ in
         EmptyView()
     }
 }

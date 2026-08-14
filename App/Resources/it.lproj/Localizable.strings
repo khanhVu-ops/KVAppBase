@@ -3,11 +3,38 @@
    Mọi key phải có mặt ở CẢ 19 file, với giá trị đã dịch —
    tools/check-l10n.sh fail nếu thiếu một key hoặc một ngôn ngữ. */
 
+/* Confirmation body before cancelling an order. */
+"Are you sure you want to cancel this order? This cannot be undone." = "Vuoi davvero annullare questo ordine? L'operazione è irreversibile.";
+
+/* Destructive button, its confirmation title, and the confirm action. */
+"Cancel order" = "Annulla ordine";
+
+/* Order status badge. */
+"Cancelled" = "Annullato";
+
 /* Dismiss button on alerts and sheets. */
 "Close" = "Chiudi";
 
+/* Order status badge. */
+"Confirmed" = "Confermato";
+
+/* Row label on the order detail screen. */
+"Customer" = "Cliente";
+
+/* Order status badge. */
+"Delivered" = "Consegnato";
+
+/* Email field placeholder. */
+"Email" = "Email";
+
 /* Default alert title for AlertState(error:). One word — check it is not truncated in the alert. */
 "Error" = "Errore";
+
+/* Forgot-password screen title. */
+"Forgot password" = "Password dimenticata";
+
+/* Link under the sign-in button. */
+"Forgot password?" = "Password dimenticata?";
 
 /* SignInUseCase validation — email fails the format check. */
 "Invalid email address." = "Indirizzo email non valido.";
@@ -15,17 +42,59 @@
 /* Title of the in-app language picker, and the toolbar button that opens it. */
 "Language" = "Lingua";
 
+/* Shown while the order list loads. */
+"Loading orders" = "Caricamento ordini";
+
 /* AppError.offline — shown on the error state view and in alerts. */
 "No internet connection. Please try again." = "Nessuna connessione a Internet. Riprova.";
+
+/* Empty state title on the order list. */
+"No orders yet" = "Nessun ordine";
+
+/* Toast after an order is cancelled. */
+"Order cancelled" = "Ordine annullato";
+
+/* Row label on the order detail screen. */
+"Order code" = "Codice ordine";
+
+/* Row label on the order detail screen. */
+"Order date" = "Data ordine";
+
+/* Order detail screen title. */
+"Order detail" = "Dettaglio ordine";
+
+/* Order history screen title. */
+"Order history" = "Cronologia ordini";
+
+/* Order list screen title. */
+"Orders" = "Ordini";
+
+/* Password field placeholder. */
+"Password" = "Password";
 
 /* SignInUseCase validation. The 6 is a fixed business rule, so no plural variant is needed. */
 "Password must be at least 6 characters." = "La password deve contenere almeno 6 caratteri.";
 
+/* Order status badge. */
+"Pending" = "In attesa";
+
 /* SignInUseCase validation — empty email field. */
 "Please enter your email." = "Inserisci il tuo indirizzo email.";
 
+/* Placeholder body on template screens. */
+"Replace this with your real screen." = "Sostituisci con la tua schermata reale.";
+
 /* Button on the error state view. Worked example: every language this app declares is filled in here, and tools/check-l10n.sh fails if any is missing. */
 "Retry" = "Riprova";
+
+/* Search field prompt on the order list. */
+"Search by order code" = "Cerca per codice ordine";
+
+/* Order status badge — on its way. */
+"Shipping" = "In consegna";
+
+/* Sign-in screen title and the submit button. */
+"Sign in" = "Accedi";
 
 /* AppError.unknown — deliberately generic; the technical detail goes to the log via `diagnostic`. */
 "Something went wrong. Please try again." = "Si è verificato un errore. Riprova.";
@@ -35,6 +104,15 @@
 
 /* AppError.decoding — a backend contract change; never actionable by the user. */
 "The server returned invalid data. Please try again later." = "Il server ha restituito dati non validi. Riprova più tardi.";
+
+/* Row label on the order detail screen — the order total. */
+"Total" = "Totale";
+
+/* Forgot-password screen. %@ is the email the user typed. */
+"We will send instructions to %@." = "Invieremo le istruzioni a %@.";
+
+/* Empty state body on the order list. */
+"Your orders will appear here." = "I tuoi ordini appariranno qui.";
 
 /* AppError.unauthorized — SessionController handles the sign-out; no screen shows its own message. */
 "Your session has expired." = "La sessione è scaduta.";

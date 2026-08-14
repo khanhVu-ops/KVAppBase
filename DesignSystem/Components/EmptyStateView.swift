@@ -2,10 +2,10 @@ import SwiftUI
 
 struct EmptyStateView: View, Equatable {
     private let icon: String
-    private let title: String
-    private let message: String
+    private let title: LocalizedStringResource
+    private let message: LocalizedStringResource
 
-    init(icon: String = "tray", title: String, message: String) {
+    init(icon: String = "tray", title: LocalizedStringResource, message: LocalizedStringResource) {
         self.icon = icon
         self.title = title
         self.message = message
@@ -34,7 +34,7 @@ struct EmptyStateView: View, Equatable {
 #Preview("Rỗng") {
     EmptyStateView(
         icon: "shippingbox",
-        title: "Chưa có đơn hàng",
-        message: "Đơn hàng của bạn sẽ xuất hiện ở đây."
+        title: "No orders yet",
+        message: "Your orders will appear here."
     )
 }

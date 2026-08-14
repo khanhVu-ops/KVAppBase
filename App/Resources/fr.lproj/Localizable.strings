@@ -3,11 +3,38 @@
    Mọi key phải có mặt ở CẢ 19 file, với giá trị đã dịch —
    tools/check-l10n.sh fail nếu thiếu một key hoặc một ngôn ngữ. */
 
+/* Confirmation body before cancelling an order. */
+"Are you sure you want to cancel this order? This cannot be undone." = "Voulez-vous vraiment annuler cette commande ? Cette action est irréversible.";
+
+/* Destructive button, its confirmation title, and the confirm action. */
+"Cancel order" = "Annuler la commande";
+
+/* Order status badge. */
+"Cancelled" = "Annulée";
+
 /* Dismiss button on alerts and sheets. */
 "Close" = "Fermer";
 
+/* Order status badge. */
+"Confirmed" = "Confirmée";
+
+/* Row label on the order detail screen. */
+"Customer" = "Client";
+
+/* Order status badge. */
+"Delivered" = "Livrée";
+
+/* Email field placeholder. */
+"Email" = "E-mail";
+
 /* Default alert title for AlertState(error:). One word — check it is not truncated in the alert. */
 "Error" = "Erreur";
+
+/* Forgot-password screen title. */
+"Forgot password" = "Mot de passe oublié";
+
+/* Link under the sign-in button. */
+"Forgot password?" = "Mot de passe oublié ?";
 
 /* SignInUseCase validation — email fails the format check. */
 "Invalid email address." = "Adresse e-mail invalide.";
@@ -15,17 +42,59 @@
 /* Title of the in-app language picker, and the toolbar button that opens it. */
 "Language" = "Langue";
 
+/* Shown while the order list loads. */
+"Loading orders" = "Chargement des commandes";
+
 /* AppError.offline — shown on the error state view and in alerts. */
 "No internet connection. Please try again." = "Aucune connexion Internet. Veuillez réessayer.";
+
+/* Empty state title on the order list. */
+"No orders yet" = "Aucune commande";
+
+/* Toast after an order is cancelled. */
+"Order cancelled" = "Commande annulée";
+
+/* Row label on the order detail screen. */
+"Order code" = "Numéro de commande";
+
+/* Row label on the order detail screen. */
+"Order date" = "Date de commande";
+
+/* Order detail screen title. */
+"Order detail" = "Détail de la commande";
+
+/* Order history screen title. */
+"Order history" = "Historique des commandes";
+
+/* Order list screen title. */
+"Orders" = "Commandes";
+
+/* Password field placeholder. */
+"Password" = "Mot de passe";
 
 /* SignInUseCase validation. The 6 is a fixed business rule, so no plural variant is needed. */
 "Password must be at least 6 characters." = "Le mot de passe doit contenir au moins 6 caractères.";
 
+/* Order status badge. */
+"Pending" = "En attente";
+
 /* SignInUseCase validation — empty email field. */
 "Please enter your email." = "Veuillez saisir votre adresse e-mail.";
 
+/* Placeholder body on template screens. */
+"Replace this with your real screen." = "Remplacez ceci par votre véritable écran.";
+
 /* Button on the error state view. Worked example: every language this app declares is filled in here, and tools/check-l10n.sh fails if any is missing. */
 "Retry" = "Réessayer";
+
+/* Search field prompt on the order list. */
+"Search by order code" = "Rechercher par numéro de commande";
+
+/* Order status badge — on its way. */
+"Shipping" = "En cours de livraison";
+
+/* Sign-in screen title and the submit button. */
+"Sign in" = "Se connecter";
 
 /* AppError.unknown — deliberately generic; the technical detail goes to the log via `diagnostic`. */
 "Something went wrong. Please try again." = "Une erreur est survenue. Veuillez réessayer.";
@@ -35,6 +104,15 @@
 
 /* AppError.decoding — a backend contract change; never actionable by the user. */
 "The server returned invalid data. Please try again later." = "Le serveur a renvoyé des données invalides. Veuillez réessayer plus tard.";
+
+/* Row label on the order detail screen — the order total. */
+"Total" = "Total";
+
+/* Forgot-password screen. %@ is the email the user typed. */
+"We will send instructions to %@." = "Nous enverrons les instructions à %@.";
+
+/* Empty state body on the order list. */
+"Your orders will appear here." = "Vos commandes apparaîtront ici.";
 
 /* AppError.unauthorized — SessionController handles the sign-out; no screen shows its own message. */
 "Your session has expired." = "Votre session a expiré.";
