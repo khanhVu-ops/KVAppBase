@@ -9,6 +9,7 @@ import KVDIKit
 struct MyApp: App {
 
     @StateObject private var router: KVAppRouter
+    @StateObject private var language: LanguageStore
     @State private var session: SessionController
 
     private let toastCenter: KVToastCenter
@@ -30,6 +31,7 @@ struct MyApp: App {
             self.logger = logger
             self.toastCenter = toastCenter
             _router = StateObject(wrappedValue: router)
+            _language = StateObject(wrappedValue: LanguageStore(defaults: .previewDefaults))
             _session = State(wrappedValue: session)
             return
         }
@@ -39,6 +41,7 @@ struct MyApp: App {
 
         // 2. The main-actor objects the app owns for its whole life.
         let toastCenter = KVToastCenter()
+        let language = LanguageStore()
         let session = SessionController(logger: logger)
         let router = KVAppRouter(middlewares: [
             AuthGuardMiddleware(isSignedIn: { session.isSignedIn }),
@@ -56,13 +59,14 @@ struct MyApp: App {
                 tokenStore: KeychainTokenStore.shared,
                 logger: logger
             )
-            $0.toast = .live(toastCenter)
+            $0.toast = .live(toastCenter, language: language)
             $0.router = router
         }
 
         self.logger = logger
         self.toastCenter = toastCenter
         _router = StateObject(wrappedValue: router)
+        _language = StateObject(wrappedValue: language)
         _session = State(wrappedValue: session)
 
         logger.info("Application launched", category: "lifecycle")
@@ -83,6 +87,16 @@ struct MyApp: App {
             }
             .kvToast(style: AppToast.style, center: toastCenter)
             .kvLogging(logger)
+            // Ngôn ngữ chọn trong app đi vào đây, và SwiftUI resolve lại mọi
+            // `Text` mang key. Không ghi `AppleLanguages` + bắt khởi động lại.
+            .environment(\.locale, language.locale)
+            .environmentObject(language)
+            // `.id` để đổi ngôn ngữ là **rebuild cả cây**. Không có nó thì `Text`
+            // đổi ngay nhưng `navigationTitle` thì không: title do navigation bar
+            // của UIKit vẽ và nó không resolve lại khi environment đổi — đã thấy
+            // tận mắt, tiêu đề giữ nguyên tiếng Việt tới khi mở lại màn.
+            // Stack không mất: `KVAppRouter` giữ path bên ngoài view identity.
+            .id(language.current)
             .task { await session.observeSessionChanges() }
         }
     }

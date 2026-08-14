@@ -23,6 +23,8 @@ restore() {
     cp "$tmp/baseline" "$BASELINE"
     cp "$tmp/view" "$PROBE_VIEW"
     [ -f "$tmp/apperror" ] && cp "$tmp/apperror" Core/AppError.swift
+    [ -f "$tmp/rows" ] && cp "$tmp/rows" Features/Order/OrderList/OrderRows.swift
+    [ -f "$tmp/applanguage" ] && cp "$tmp/applanguage" Core/AppLanguage.swift
     rm -rf "$tmp"
 }
 trap restore EXIT
@@ -78,13 +80,24 @@ check "5 · baseline còn dòng đã chết"
 cp "$tmp/baseline" "$BASELINE"
 
 cp Core/AppError.swift "$tmp/apperror"
-perl -pi -e 's/String\(localized: "Your session has expired\."\)/String(localized: "Key nay khong co trong catalog")/' Core/AppError.swift
-check "6 · String(localized:) dùng key không có trong catalog"
+perl -pi -e 's/return "Your session has expired\."/return "Key nay khong co trong catalog"/' Core/AppError.swift
+check "6 · code dùng key không có trong catalog"
 cp "$tmp/apperror" Core/AppError.swift
 
-perl -pi -e 's/return String\(localized: "Your session has expired\."\)/return "Phiên đã hết hạn."/' Core/AppError.swift
-check "7 · Core/Domain return chuỗi thô"
+# Cách sai nguy hiểm nhất: compile được, chạy được, chỉ đứng yên ở ngôn ngữ máy.
+perl -pi -e 's/return "Your session has expired\."/return String(localized: "Your session has expired.")/' Core/AppError.swift
+check "7 · String(localized:) đóng băng text ngoài cầu nối"
 cp "$tmp/apperror" Core/AppError.swift
+
+cp Features/Order/OrderList/OrderRows.swift "$tmp/rows"
+perl -pi -e 's/Text\(order\.total, format: \.currency\(code: "VND"\)\)/Text(order.total.formatted(.currency(code: "VND")))/' Features/Order/OrderList/OrderRows.swift
+check "8 · View dùng .formatted() thay vì Text(value, format:)"
+cp "$tmp/rows" Features/Order/OrderList/OrderRows.swift
+
+cp Core/AppLanguage.swift "$tmp/applanguage"
+perl -pi -e 's/^    case thai .*$//' Core/AppLanguage.swift
+check "9 · picker thiếu một ngôn ngữ app có khai"
+cp "$tmp/applanguage" Core/AppLanguage.swift
 
 echo
 if [ "$fail_count" -gt 0 ]; then

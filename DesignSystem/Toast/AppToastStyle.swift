@@ -32,9 +32,15 @@ extension ToastService {
     /// Bridges the app's transport-free `ToastService` port onto a real toast
     /// center. `post(_:)` hops to the main actor itself, so a ViewModel can call
     /// this from anywhere without an `await`.
-    static func live(_ center: KVToastCenter) -> ToastService {
+    /// Toast được KVToastKit dựng ở **window riêng**, ngoài environment của SwiftUI,
+    /// nên `\.locale` không với tới nó: text phải được dịch ngay tại đây, theo ngôn
+    /// ngữ người dùng đang chọn. Đây là chỗ duy nhất trong app cần `Bundle` của một
+    /// `.lproj` cụ thể — mọi chỗ khác để SwiftUI resolve.
+    static func live(_ center: KVToastCenter, language: LanguageStore) -> ToastService {
         ToastService { message, kind in
-            center.post(KVToastItem(message: message, kind: kind.kvKind))
+            MainActor.assumeIsolated {
+                center.post(KVToastItem(message: language.localized(message), kind: kind.kvKind))
+            }
         }
     }
 }

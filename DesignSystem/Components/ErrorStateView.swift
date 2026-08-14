@@ -20,10 +20,12 @@ struct ErrorStateView: View, Equatable {
                 .font(.system(size: 44))
                 .foregroundStyle(AppColor.Semantic.error)
 
-            Text(error.userMessage)
-                .font(AppFont.body)
-                .foregroundStyle(AppColor.Text.secondary)
-                .multilineTextAlignment(.center)
+            if let message = error.userMessage {
+                Text(message)
+                    .font(AppFont.body)
+                    .foregroundStyle(AppColor.Text.secondary)
+                    .multilineTextAlignment(.center)
+            }
 
             if error.isRetryable {
                 // Chuỗi trong `Text`/`Button` là **key** của string catalog, và

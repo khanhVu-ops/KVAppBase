@@ -9,16 +9,19 @@ import Foundation
 /// Compose's `ViewEffect`.
 struct AlertState: Equatable, Identifiable, Sendable {
     let id: UUID
-    let title: String
-    let message: String
+    let title: LocalizedStringResource
+    let message: LocalizedStringResource
 
-    init(id: UUID = UUID(), title: String, message: String) {
+    init(id: UUID = UUID(), title: LocalizedStringResource, message: LocalizedStringResource) {
         self.id = id
         self.title = title
         self.message = message
     }
 
-    init(error: AppError, title: String = String(localized: "Error")) {
-        self.init(title: title, message: error.userMessage)
+    /// `.cancelled` không có gì để nói, nên nó không dựng được alert — người gọi phải
+    /// xử lý `nil` thay vì hiện một hộp thoại trống.
+    init?(error: AppError, title: LocalizedStringResource = "Error") {
+        guard let message = error.userMessage else { return nil }
+        self.init(title: title, message: message)
     }
 }

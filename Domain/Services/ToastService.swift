@@ -11,9 +11,9 @@ enum ToastKind: Equatable, Sendable {
 /// `ToastService { message, _ in posted.append(message) }`.
 struct ToastService: Sendable {
 
-    var post: @Sendable (_ message: String, _ kind: ToastKind) -> Void
+    var post: @Sendable (_ message: LocalizedStringResource, _ kind: ToastKind) -> Void
 
-    init(post: @escaping @Sendable (String, ToastKind) -> Void) {
+    init(post: @escaping @Sendable (LocalizedStringResource, ToastKind) -> Void) {
         self.post = post
     }
 
@@ -21,16 +21,16 @@ struct ToastService: Sendable {
     /// never be the reason a screen crashes.
     static let noop = ToastService { _, _ in }
 
-    func info(_ message: String) { post(message, .info) }
-    func success(_ message: String) { post(message, .success) }
-    func warning(_ message: String) { post(message, .warning) }
-    func error(_ message: String) { post(message, .error) }
+    func info(_ message: LocalizedStringResource) { post(message, .info) }
+    func success(_ message: LocalizedStringResource) { post(message, .success) }
+    func warning(_ message: LocalizedStringResource) { post(message, .warning) }
+    func error(_ message: LocalizedStringResource) { post(message, .error) }
 
-    /// Skips empty messages, so `toast.error(AppError.cancelled)` — whose
-    /// `userMessage` is empty on purpose — shows nothing instead of a blank pill.
+    /// `.cancelled` có `userMessage` là `nil` nên nó không hiện gì, thay vì hiện một
+    /// viên toast rỗng.
     func error(_ error: AppError) {
-        guard !error.userMessage.isEmpty else { return }
-        post(error.userMessage, .error)
+        guard let message = error.userMessage else { return }
+        post(message, .error)
     }
 }
 
@@ -44,7 +44,7 @@ struct ToastService: Sendable {
 final class ToastRecorder: @unchecked Sendable {
 
     struct Entry: Equatable, Sendable {
-        let message: String
+        let message: LocalizedStringResource
         let kind: ToastKind
     }
 
@@ -61,7 +61,7 @@ final class ToastRecorder: @unchecked Sendable {
     }
 
     var entries: [Entry] { lock.withLock { storage } }
-    var messages: [String] { lock.withLock { storage.map(\.message) } }
+    var messages: [LocalizedStringResource] { lock.withLock { storage.map(\.message) } }
     var isEmpty: Bool { lock.withLock { storage.isEmpty } }
 
     private func append(_ entry: Entry) {

@@ -4,6 +4,7 @@ import KVRouterKit   // Views may import the full router: `pushView` belongs her
 struct OrderListView: View {
 
     @StateObject private var viewModel = OrderListViewModel()
+    @State private var isLanguagePickerPresented = false
 
     init() {}
 
@@ -25,6 +26,19 @@ struct OrderListView: View {
         .task { viewModel.send(.appeared) }
         .refreshable { await refresh() }
         .alert(viewModel.state.alert) { viewModel.send(.alertDismissed) }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    isLanguagePickerPresented = true
+                } label: {
+                    Image(systemName: "globe")
+                }
+                .accessibilityLabel("Language")
+            }
+        }
+        .sheet(isPresented: $isLanguagePickerPresented) {
+            LanguagePickerView()
+        }
     }
 
     @ViewBuilder

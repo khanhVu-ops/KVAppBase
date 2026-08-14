@@ -40,13 +40,13 @@ struct SignInUseCase: Sendable {
 }
 
 extension SignInUseCase.ValidationError {
-    var userMessage: String {
+    var userMessage: LocalizedStringResource {
         switch self {
         // Key là chuỗi English của catalog — xem `AppError.userMessage` và skill
         // `ios-l10n`. `String(localized:)` là Foundation, nên `Domain` vẫn sạch.
-        case .emailEmpty:       return String(localized: "Please enter your email.")
-        case .emailInvalid:     return String(localized: "Invalid email address.")
-        case .passwordTooShort: return String(localized: "Password must be at least 6 characters.")
+        case .emailEmpty:       return "Please enter your email."
+        case .emailInvalid:     return "Invalid email address."
+        case .passwordTooShort: return "Password must be at least 6 characters."
         }
     }
 }

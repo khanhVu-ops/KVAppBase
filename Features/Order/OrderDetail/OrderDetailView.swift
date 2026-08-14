@@ -51,10 +51,10 @@ struct OrderDetailContent: View, Equatable {
             VStack(alignment: .leading, spacing: Spacing.m) {
                 OrderStatusBadge(status: order.status)
 
-                row("Mã đơn", order.code)
-                row("Khách hàng", order.customerName)
-                row("Tổng tiền", order.total.formatted(.currency(code: "VND")))
-                row("Ngày đặt", order.placedAt.formatted(date: .abbreviated, time: .shortened))
+                row("Mã đơn", Text(verbatim: order.code))
+                row("Khách hàng", Text(verbatim: order.customerName))
+                row("Tổng tiền", Text(order.total, format: .currency(code: "VND")))
+                row("Ngày đặt", Text(order.placedAt, format: .dateTime.day().month().year().hour().minute()))
 
                 if order.isCancellable {
                     Button(role: .destructive, action: onCancel) {
@@ -73,13 +73,18 @@ struct OrderDetailContent: View, Equatable {
         }
     }
 
-    private func row(_ title: String, _ value: String) -> some View {
+    /// Nhận `Text` chứ không nhận `String`: số và ngày phải để SwiftUI format theo
+    /// `\.locale`. `value.formatted(...)` dựng chuỗi **ngay lúc gọi** bằng
+    /// `Locale.current` (ngôn ngữ của máy), nên nó không đổi khi người dùng đổi ngôn
+    /// ngữ trong app — đã thấy tận mắt: cùng một đơn, list hiện `đ250,000` còn màn này
+    /// vẫn `250.000 đ`.
+    private func row(_ title: LocalizedStringResource, _ value: Text) -> some View {
         HStack {
             Text(title)
                 .font(AppFont.caption)
                 .foregroundStyle(AppColor.Text.secondary)
             Spacer()
-            Text(value)
+            value
                 .font(AppFont.bodyStrong)
                 .foregroundStyle(AppColor.Text.primary)
         }

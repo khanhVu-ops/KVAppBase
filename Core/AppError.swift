@@ -21,7 +21,11 @@ enum AppError: Error, Equatable, Sendable {
 
     /// The server explained itself. Show `message` as-is: it is written for
     /// this user, in their language, about their request.
-    case server(message: String, code: Int)
+    ///
+    /// `nil` khi backend chỉ trả status code không kèm lời nào — trước đây chỗ đó
+    /// nhét câu generic vào như thể server đã nói, làm mất phân biệt giữa "server
+    /// bảo thế" và "app tự nghĩ ra".
+    case server(message: String?, code: Int)
 
     /// The response did not match what the app expects. Almost always a
     /// backend contract change; never actionable by the user.
@@ -34,35 +38,42 @@ enum AppError: Error, Equatable, Sendable {
     /// see `userMessage`.
     case unknown(String)
 
-    /// What a user should read. Kept here so every screen phrases the same
-    /// failure the same way.
+    /// What a user should read, or `nil` khi không nên hiện gì.
     ///
-    /// `String(localized:)` là Foundation, nên luật 1 (`Domain`/`Core` chỉ import
-    /// Foundation) vẫn nguyên. Literal ở đây là **key** của
-    /// `App/Resources/Localizable.xcstrings`, viết bằng English để đọc được tại
-    /// chỗ; bản dịch 19 ngôn ngữ nằm trong catalog. `tools/check-l10n.sh` fail nếu
-    /// một `return "..."` ở tầng này không đi qua `String(localized:)`.
-    var userMessage: String {
+    /// Kiểu là `LocalizedStringResource`, **không** phải `String`, và đó là điều kiện
+    /// để đổi ngôn ngữ trong app có tác dụng. Đo trên simulator (máy vi, environment
+    /// ja): `Text(LocalizedStringResource)` đổi theo `\.locale`, còn
+    /// `Text(String(localized:))` thì không — `String(localized:)` resolve **ngay lúc
+    /// gọi** theo ngôn ngữ của máy. Trả `String` ở đây nghĩa là mọi lỗi sẽ hiện sai
+    /// ngôn ngữ ngay sau khi người dùng vừa đổi ngôn ngữ.
+    ///
+    /// `LocalizedStringResource` là Foundation, nên luật 1 (`Core`/`Domain` chỉ import
+    /// Foundation) vẫn nguyên. Literal là **key** của `Localizable.xcstrings`.
+    ///
+    /// `nil` cho `.cancelled` thay vì chuỗi rỗng: "không hiện gì" là một trạng thái,
+    /// không phải một chuỗi độ dài 0 — và Optional thì compiler bắt người gọi xử lý.
+    var userMessage: LocalizedStringResource? {
         switch self {
         case .offline:
-            return String(localized: "No internet connection. Please try again.")
+            return "No internet connection. Please try again."
         case .unauthorized:
-            return String(localized: "Your session has expired.")
+            return "Your session has expired."
         case .server(let message, _):
-            // Text của server, đã viết cho đúng người dùng này bằng ngôn ngữ của
-            // họ — dịch lại là sai, và nó không phải key của catalog.
-            return message
+            // Text của server, đã viết cho đúng người dùng này bằng ngôn ngữ của họ —
+            // dịch lại là sai. Tra catalog sẽ trượt và trả về chính chuỗi này.
+            guard let message else { return "Something went wrong. Please try again." }
+            return LocalizedStringResource(String.LocalizationValue(message))
         case .decoding:
-            return String(localized: "The server returned invalid data. Please try again later.")
+            return "The server returned invalid data. Please try again later."
         case .cancelled:
-            return ""
+            return nil
         case .unknown:
             // Never the underlying description. `URLError.cannotFindHost`
             // renders as "Không thể tìm thấy máy chủ có tên máy chủ được chỉ
             // định." — system phrasing about the app's own configuration, shown
             // to someone who cannot act on it. The detail is already in the log,
             // where it belongs; see `diagnostic`.
-            return String(localized: "Something went wrong. Please try again.")
+            return "Something went wrong. Please try again."
         }
     }
 
@@ -70,7 +81,7 @@ enum AppError: Error, Equatable, Sendable {
     var diagnostic: String? {
         switch self {
         case .unknown(let message):     return message.isEmpty ? nil : message
-        case .server(let message, let code): return "\(code): \(message)"
+        case .server(let message, let code): return "\(code): \(message ?? "-")"
         default:                        return nil
         }
     }

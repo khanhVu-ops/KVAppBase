@@ -17,7 +17,7 @@ extension View {
             Alert(
                 title: Text(alert.title),
                 message: Text(alert.message),
-                dismissButton: .default(Text("Đóng"), action: onDismiss)
+                dismissButton: .default(Text("Close"), action: onDismiss)
             )
         }
     }
@@ -25,7 +25,7 @@ extension View {
     /// Two-button variant for a destructive confirmation.
     func confirmationAlert(
         _ state: AlertState?,
-        confirmTitle: String,
+        confirmTitle: LocalizedStringResource,
         onConfirm: @escaping () -> Void,
         onDismiss: @escaping () -> Void
     ) -> some View {
@@ -34,7 +34,7 @@ extension View {
                 title: Text(alert.title),
                 message: Text(alert.message),
                 primaryButton: .destructive(Text(confirmTitle), action: onConfirm),
-                secondaryButton: .cancel(Text("Đóng"), action: onDismiss)
+                secondaryButton: .cancel(Text("Close"), action: onDismiss)
             )
         }
     }

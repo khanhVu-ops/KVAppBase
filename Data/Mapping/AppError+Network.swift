@@ -29,7 +29,7 @@ extension AppError {
             self = .decoding
 
         case .statusCode(let code):
-            self = .server(message: AppError.unknown("").userMessage, code: code)
+            self = .server(message: nil, code: code)
 
         case .networkUnavailable, .timeout:
             self = .offline

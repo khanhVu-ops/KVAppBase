@@ -10,7 +10,7 @@ final class SignInViewModel: ObservableObject {
         var email = ""
         var password = ""
         var isSubmitting = false
-        var fieldError: String?
+        var fieldError: LocalizedStringResource?
 
         var canSubmit: Bool {
             !email.isEmpty && !password.isEmpty && !isSubmitting

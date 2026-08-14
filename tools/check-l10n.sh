@@ -6,28 +6,32 @@
 # làm gì cả cho tới khi có người mở app bằng ngôn ngữ đó — nó fallback về English,
 # im lặng, và không test nào đỏ. Nợ kiểu đó chỉ lộ ra ở tay người dùng.
 #
-# Bốn phép kiểm:
+# Bảy phép kiểm:
 #   1  catalog tồn tại, JSON hợp lệ, sourceLanguage = en
 #   2  catalog khai đủ 19 ngôn ngữ (danh sách dưới đây là nguồn duy nhất — xcodegen
 #      suy `knownRegions` từ chính catalog, nên thêm ngôn ngữ ở đây là Xcode thấy)
 #   3  mọi string trong catalog đã `translated` ở **tất cả** 19 ngôn ngữ
-#   4  ratchet: mọi chuỗi ở vị trí user-facing trong Features/DesignSystem phải là
-#      key của catalog, hoặc nằm trong tools/l10n-baseline.txt — và baseline chỉ
-#      được co lại, không được nở ra
+#   4  ratchet: chuỗi user-facing trong Features/DesignSystem phải là key của catalog
+#      hoặc nằm trong tools/l10n-baseline.txt — và baseline chỉ được co lại
+#   5  mọi key dùng trong code phải có thật trong catalog
+#   6  `String(localized:)` chỉ được xuất hiện ở đúng một chỗ (cầu nối toast)
+#   7  `AppLanguage` (picker) khớp danh sách ngôn ngữ
+#   8  View format số/ngày bằng `Text(value, format:)`, không phải `.formatted()`
 #
-#   5  mọi key trong `String(localized: "...")` phải có trong catalog
-#   6  trong Core/ và Domain/, `return "..."` phải đi qua `String(localized:)`
+# Luật 6 và 8 sinh ra từ một phép đo trên simulator (ngôn ngữ máy vi, environment ja):
 #
-# Vì sao luật 6 nhìn kỳ mà lại chính xác: ở hai tầng đó, `return` của một string
-# literal gần như luôn là text chảy ra cho người dùng đọc — `AppError.userMessage`,
-# message validate của use case. Đo trên source thật trước khi viết luật: 9 hit, 8 là
-# text người dùng, còn lại là `return ""` và một chuỗi nội suy thuần. Không dính literal
-# hạ tầng nào (key Info.plist, key keychain, path endpoint) vì chúng không ở dạng
-# `return "..."`. Luật suy từ source, không phải từ cảm giác.
+#   Text("key") / Text(LocalizedStringResource)   → đổi theo ngôn ngữ chọn trong app
+#   Text(String(localized: "key"))                → KHÔNG
+#   String(localized: "key", locale: ja)          → KHÔNG (`locale:` chỉ đổi format)
+#   Text(value, format: .currency(...))           → đổi
+#   value.formatted(.currency(...))               → KHÔNG
 #
-# Phạm vi còn hẹp ở hai chỗ, nói ra để dấu tick xanh không ngụ ý rộng hơn thực tế:
-# `Data/` không bị luật 6 (đầy literal wire-level: path, JSON key, keychain key), và
-# chuỗi ghép động `"\(a) \(b)"` thì script không đọc được ý định.
+# Nên text đi xuyên tầng mang `LocalizedStringResource` và để View resolve. Cả hai
+# cách sai đều **compile, chạy, không log gì** — chúng chỉ hiện ra khi người dùng đổi
+# ngôn ngữ rồi thấy một nửa màn hình không đổi theo.
+#
+# Phạm vi còn hẹp: `Data/` không bị soi (đầy literal wire-level), chuỗi ghép động
+# `"\(a) \(b)"` thì script không đọc được ý định, và `accessibilityLabel` chưa ai canh.
 
 set -uo pipefail
 cd "$(dirname "$0")/.."
@@ -172,31 +176,82 @@ fi
 orphans=""
 while IFS= read -r key; do
     [ -n "$key" ] || continue
-    grep -qxF "$key" <<< "$keys" || orphans="$orphans$key"$'\n'
-done < <(grep -rhoE 'String\(localized: "[^"]+"' --include='*.swift' \
+    grep -qxF "$key" <<< "$keys" && continue
+    grep -qxF "$key" <<< "$baseline" && continue
+    orphans="$orphans$key"$'\n'
+done < <(
+    {
+        # Literal của `LocalizedStringResource` ở Core/Domain: `return "..."` giờ LÀ key.
+        # Lọc comment TRƯỚC khi bóc literal: chính doc của file này có bảng nhắc
+        # `String(localized: "key")` như một ví dụ sai, và nó từng làm luật đỏ.
+        grep -rnE 'return "[^"]+"' --include='*.swift' Core Domain \
+            | grep -vE ':[0-9]+:[[:space:]]*(///?|\*|/\*)' \
+            | grep -oE 'return "[^"]+"' | sed -E 's/^return "//; s/"$//'
+        grep -rnE 'String\(localized: "[^"]+"' --include='*.swift' \
             Core Domain Data DI DesignSystem Features App \
-         | sed -E 's/^String\(localized: "//; s/"$//' | sort -u)
+            | grep -vE ':[0-9]+:[[:space:]]*(///?|\*|/\*)' \
+            | grep -oE 'String\(localized: "[^"]+"' | sed -E 's/^String\(localized: "//; s/"$//'
+    } | grep -vE '^\\\(|^$' | sort -u
+)
 if [ -n "$orphans" ]; then
-    fail "String(localized:) dùng key không có trong catalog" "$orphans" \
+    fail "code dùng key không có trong catalog" "$orphans" \
         "app sẽ hiện nguyên key — không crash, không log, nên chỉ người dùng thấy"
 else
-    pass "mọi key của String(localized:) đều có trong catalog"
+    pass "mọi key dùng trong code đều có trong catalog"
 fi
 
 # ---------------------------------------------------------------------------
-# 6. Core/ và Domain/: return một literal thì phải qua String(localized:).
-#    Miễn `return ""` và chuỗi nội suy thuần (`"\(code): \(message)"`) — cái đầu
-#    là "không hiện gì", cái sau là diagnostic ghép từ giá trị runtime.
+# 7. Danh sách ngôn ngữ trong picker phải khớp danh sách app khai.
+#    Một ngôn ngữ có trong `AppLanguage` mà không có bản dịch = người dùng chọn xong
+#    rồi thấy toàn tiếng Anh; ngược lại = dịch xong mà không ai chọn được.
 # ---------------------------------------------------------------------------
-bare=$(grep -rnE 'return "[^"]*"' --include='*.swift' Core Domain \
-       | grep -v 'String(localized:' \
-       | grep -vE 'return ""' \
-       | grep -vE 'return "\\\(' || true)
-if [ -n "$bare" ]; then
-    fail "Core/Domain return chuỗi thô, chưa localize" "$bare" \
-        "bọc trong String(localized:) và thêm key vào catalog kèm đủ ngôn ngữ"
+declared_cases=$(grep -oE 'case [a-zA-Z]+ *= *"[^"]+"' Core/AppLanguage.swift \
+    | sed -E 's/.*= *"//; s/"$//' | sort -u)
+wanted=$(tr ' ' '\n' <<< "$LANGUAGES" | sort -u)
+missing_in_picker=$(comm -23 <(echo "$wanted") <(echo "$declared_cases"))
+extra_in_picker=$(comm -13 <(echo "$wanted") <(echo "$declared_cases"))
+if [ -n "$missing_in_picker" ] || [ -n "$extra_in_picker" ]; then
+    message=""
+    [ -n "$missing_in_picker" ] && message="$message"$'app khai nhưng picker không có: '"$(echo "$missing_in_picker" | tr '\n' ' ')"$'\n'
+    [ -n "$extra_in_picker" ] && message="$message"$'picker có nhưng app không khai: '"$(echo "$extra_in_picker" | tr '\n' ' ')"
+    fail "AppLanguage lệch danh sách ngôn ngữ" "$message"
 else
-    pass "Core/Domain không còn chuỗi thô nào chảy ra ngoài"
+    pass "AppLanguage khớp đúng danh sách ngôn ngữ"
+fi
+
+# ---------------------------------------------------------------------------
+# 8. Trong View: format số/ngày bằng `Text(value, format:)`, không phải `.formatted()`.
+#    `.formatted()` dựng chuỗi ngay lúc gọi bằng `Locale.current` = ngôn ngữ của MÁY,
+#    nên nó không đổi khi người dùng đổi ngôn ngữ trong app. Đã thấy tận mắt: cùng một
+#    đơn hàng, list (`Text(value, format:)`) hiện `đ250,000` sau khi đổi sang tiếng
+#    Nhật, còn màn chi tiết (`.formatted()`) vẫn `250.000 đ`.
+# ---------------------------------------------------------------------------
+formatted_hits=$(grep -rn '\.formatted(' --include='*.swift' Features DesignSystem \
+    | grep -vE ':[0-9]+:[[:space:]]*(///?|\*|/\*)' || true)
+if [ -n "$formatted_hits" ]; then
+    fail "View dùng .formatted() thay vì Text(value, format:)" "$formatted_hits" \
+        "chuỗi dựng bằng .formatted() giữ nguyên ngôn ngữ của máy sau khi đổi ngôn ngữ trong app"
+else
+    pass "View format số/ngày qua Text(value, format:)"
+fi
+
+# ---------------------------------------------------------------------------
+# 6. `String(localized:)` chỉ được xuất hiện ở đúng một chỗ.
+#    Nó resolve **ngay lúc gọi** theo `Locale.current` = ngôn ngữ của MÁY, nên mọi
+#    text đi qua nó đóng băng ở ngôn ngữ hệ thống và không đổi khi người dùng đổi
+#    ngôn ngữ trong app. Text xuyên tầng phải mang `LocalizedStringResource` để View
+#    resolve; chỗ duy nhất buộc phải ra `String` là cầu nối toast trong
+#    `Core/LanguageStore.swift`, và nó tra bundle `.lproj` chứ không dùng API này.
+# ---------------------------------------------------------------------------
+frozen=$(grep -rn 'String(localized:' --include='*.swift' \
+    Core Domain Data DI DesignSystem Features App \
+    | grep -v '^Core/LanguageStore.swift' \
+    | grep -vE ':[0-9]+:[[:space:]]*(///?|\*|/\*)' || true)
+if [ -n "$frozen" ]; then
+    fail "String(localized:) ngoài cầu nối được phép" "$frozen" \
+        "text sẽ đứng yên ở ngôn ngữ máy — dùng LocalizedStringResource và để View resolve"
+else
+    pass "không có text nào bị đóng băng bằng String(localized:)"
 fi
 
 echo
