@@ -141,3 +141,13 @@ struct ForgotPasswordView: View {
         .navigationTitle("Quên mật khẩu")
     }
 }
+
+#Preview("Đăng nhập") {
+    SignInView(onSignedIn: { _ in })
+}
+
+#Preview("Quên mật khẩu") {
+    NavigationStack {
+        ForgotPasswordView(email: "a@example.com")
+    }
+}

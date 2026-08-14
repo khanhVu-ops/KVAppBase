@@ -36,7 +36,7 @@ skill `ios-l10n` trong kit.
 ./tools/verify.sh
 ```
 
-10 luật → 11 self-test → xcodegen → build + test.
+11 luật → 12 self-test → xcodegen → build + test.
 
 File `.swift` **mới** thì hook `PostToolUse` trong `.claude/settings.json` đã
 `xcodegen generate` giúp (qua `tools/xcodegen-if-needed.sh`). **Di chuyển hoặc xoá**

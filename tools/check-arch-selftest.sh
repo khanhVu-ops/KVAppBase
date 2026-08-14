@@ -127,6 +127,23 @@ probe_readme_count() {
 }
 probe_readme_count
 
+# Luật 11 cũng không kiểm được bằng cách thêm một dòng: phải có một View KHÔNG preview.
+probe_preview() {
+    cat > DesignSystem/Components/__ProbeView.swift <<'SWIFT'
+import SwiftUI
+struct __ProbeView: View { var body: some View { EmptyView() } }
+SWIFT
+    if ./tools/check-arch.sh >/dev/null 2>&1; then
+        printf '\033[31m✗\033[0m 11 · View thiếu #Preview — vi phạm KHÔNG bị bắt\n'
+        fail_count=$((fail_count + 1))
+    else
+        printf '\033[32m✓\033[0m 11 · View thiếu #Preview\n'
+        pass_count=$((pass_count + 1))
+    fi
+    rm -f DesignSystem/Components/__ProbeView.swift
+}
+probe_preview
+
 echo
 if [ "$fail_count" -gt 0 ]; then
     printf '\033[31m%d/%d phép kiểm không bắt được vi phạm.\033[0m\n' "$fail_count" "$((pass_count + fail_count))"

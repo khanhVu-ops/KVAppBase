@@ -52,3 +52,16 @@ struct ErrorStateView: View, Equatable {
         lhs.error == rhs.error
     }
 }
+
+#Preview("Offline — có nút thử lại") {
+    ErrorStateView(error: .offline, onRetry: {})
+}
+
+#Preview("Decoding — không thử lại được") {
+    ErrorStateView(error: .decoding, onRetry: {})
+}
+
+#Preview("Tiếng Nhật") {
+    ErrorStateView(error: .offline, onRetry: {})
+        .environment(\.locale, Locale(identifier: "ja"))
+}

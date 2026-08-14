@@ -69,3 +69,10 @@ struct OrderListView: View {
         )
     }
 }
+
+#Preview("Danh sách đơn") {
+    NavigationStack {
+        OrderListView()
+    }
+    .environmentObject(LanguageStore(defaults: .previewDefaults))
+}

@@ -21,3 +21,11 @@ struct LoadingView: View {
         .accessibilityLabel(message ?? "Đang tải")
     }
 }
+
+#Preview("Đang tải") {
+    LoadingView(message: "Đang tải đơn hàng")
+}
+
+#Preview("Không có message") {
+    LoadingView()
+}

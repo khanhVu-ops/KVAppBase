@@ -30,3 +30,11 @@ struct EmptyStateView: View, Equatable {
         lhs.icon == rhs.icon && lhs.title == rhs.title && lhs.message == rhs.message
     }
 }
+
+#Preview("Rỗng") {
+    EmptyStateView(
+        icon: "shippingbox",
+        title: "Chưa có đơn hàng",
+        message: "Đơn hàng của bạn sẽ xuất hiện ở đây."
+    )
+}

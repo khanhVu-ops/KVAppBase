@@ -15,3 +15,9 @@ struct OrderHistoryView: View {
         .navigationTitle("Lịch sử")
     }
 }
+
+#Preview("Lịch sử đơn") {
+    NavigationStack {
+        OrderHistoryView()
+    }
+}

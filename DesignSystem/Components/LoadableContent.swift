@@ -25,3 +25,21 @@ struct LoadableContent<Value: Equatable & Sendable, Content: View>: View {
         }
     }
 }
+
+#Preview("Đã tải") {
+    LoadableContent(state: .loaded(Order.samples), loadingMessage: "Đang tải", onRetry: {}) { orders in
+        Text(verbatim: "\(orders.count) đơn hàng")
+    }
+}
+
+#Preview("Đang tải") {
+    LoadableContent(state: Loadable<[Order]>.loading, loadingMessage: "Đang tải đơn hàng", onRetry: {}) { _ in
+        EmptyView()
+    }
+}
+
+#Preview("Lỗi") {
+    LoadableContent(state: Loadable<[Order]>.failed(.offline), loadingMessage: "Đang tải", onRetry: {}) { _ in
+        EmptyView()
+    }
+}

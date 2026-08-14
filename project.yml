@@ -23,6 +23,14 @@ settings:
     # Sendable mistakes become build errors instead of crashes under load.
     SWIFT_STRICT_CONCURRENCY: complete
     ENABLE_USER_SCRIPT_SANDBOXING: "NO"
+    # Compiler KHÔNG tự bóc chuỗi vào Localizable.xcstrings.
+    #
+    # Bật (mặc định) thì mỗi lần build, mọi literal trong Text/Button bị thêm vào
+    # catalog ở trạng thái chưa dịch — kể cả những chuỗi đang nằm trong
+    # tools/l10n-baseline.txt vì cố ý chưa dịch. Nghĩa là build làm bẩn file mà
+    # check-l10n.sh vừa kiểm sạch, và verify.sh đỏ ngay sau một build thành công.
+    # Catalog ở repo này là nguồn do người viết; script canh nó, không phải compiler.
+    SWIFT_EMIT_LOC_STRINGS: "NO"
 
 packages:
   KVRouter:
@@ -40,6 +48,11 @@ packages:
   KVLoggingKit:
     url: https://github.com/khanhVu-ops/KVLoggingKit.git
     from: 1.0.0
+  # Ảnh từ URL đi qua Kingfisher, không dùng AsyncImage: AsyncImage không cache
+  # xuống đĩa, không downsample, và tải lại mỗi lần cell cuộn qua.
+  Kingfisher:
+    url: https://github.com/onevcat/Kingfisher.git
+    from: 8.8.1
 
 targets:
   MyApp:
@@ -80,6 +93,8 @@ targets:
         product: KVLoggingNetwork
       - package: KVLoggingKit
         product: KVLoggingConsole
+      - package: Kingfisher
+        product: Kingfisher
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.example.myapp

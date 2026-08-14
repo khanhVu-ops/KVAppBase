@@ -232,6 +232,28 @@ else
     pass "README.md nói đúng số luật ($rule_count)"
 fi
 
+# ---------------------------------------------------------------------------
+# 11. Mọi View đều có `#Preview`.
+#     Preview là cách rẻ nhất để nhìn thấy một màn ở trạng thái rỗng, lỗi, tên dài,
+#     dark mode, và ở một ngôn ngữ khác — những trạng thái mà chạy app rất khó dựng
+#     lại. Một View không có preview thì cách duy nhất để xem nó là build, chạy, đăng
+#     nhập, bấm tới đúng chỗ; nên nó không được xem, nên nó hỏng lặng lẽ.
+#
+#     Chỉ soi file khai `struct X: View`. File chỉ có `ViewModifier` hay
+#     `UIViewRepresentable` thì không tính — chúng không đứng một mình được.
+# ---------------------------------------------------------------------------
+missing_preview=""
+for file in $(grep -rlE '^(public |internal |private |fileprivate )?struct [A-Za-z_][A-Za-z0-9_]*(<[^>]*>)? *:.*\bView\b' \
+        --include="*.swift" Features DesignSystem 2>/dev/null); do
+    grep -q '#Preview' "$file" || missing_preview="$missing_preview$file"$'\n'
+done
+if [ -n "$missing_preview" ]; then
+    fail "View không có #Preview" "$missing_preview" \
+        "thêm #Preview kèm dữ liệu mock — Fixtures.swift đã có sẵn đơn hàng và user"
+else
+    pass "Mọi View đều có #Preview"
+fi
+
 echo
 if [ "$failures" -gt 0 ]; then
     printf '\033[31m%d architecture rule(s) violated.\033[0m\n' "$failures"
