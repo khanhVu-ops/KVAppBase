@@ -1,0 +1,40 @@
+/* Localizable.strings
+
+   Mọi key phải có mặt ở CẢ 19 file, với giá trị đã dịch —
+   tools/check-l10n.sh fail nếu thiếu một key hoặc một ngôn ngữ. */
+
+/* Dismiss button on alerts and sheets. */
+"Close" = "बंद करें";
+
+/* Default alert title for AlertState(error:). One word — check it is not truncated in the alert. */
+"Error" = "त्रुटि";
+
+/* SignInUseCase validation — email fails the format check. */
+"Invalid email address." = "ईमेल पता अमान्य है।";
+
+/* Title of the in-app language picker, and the toolbar button that opens it. */
+"Language" = "भाषा";
+
+/* AppError.offline — shown on the error state view and in alerts. */
+"No internet connection. Please try again." = "इंटरनेट कनेक्शन नहीं है। कृपया फिर कोशिश करें।";
+
+/* SignInUseCase validation. The 6 is a fixed business rule, so no plural variant is needed. */
+"Password must be at least 6 characters." = "पासवर्ड में कम से कम 6 अक्षर होने चाहिए।";
+
+/* SignInUseCase validation — empty email field. */
+"Please enter your email." = "कृपया अपना ईमेल दर्ज करें।";
+
+/* Button on the error state view. Worked example: every language this app declares is filled in here, and tools/check-l10n.sh fails if any is missing. */
+"Retry" = "फिर कोशिश करें";
+
+/* AppError.unknown — deliberately generic; the technical detail goes to the log via `diagnostic`. */
+"Something went wrong. Please try again." = "कुछ गड़बड़ हो गई। कृपया फिर कोशिश करें।";
+
+/* First row of the language picker: follow the device setting. */
+"System language" = "सिस्टम भाषा";
+
+/* AppError.decoding — a backend contract change; never actionable by the user. */
+"The server returned invalid data. Please try again later." = "सर्वर से अमान्य डेटा मिला। कृपया बाद में कोशिश करें।";
+
+/* AppError.unauthorized — SessionController handles the sign-out; no screen shows its own message. */
+"Your session has expired." = "आपका सत्र समाप्त हो गया है।";

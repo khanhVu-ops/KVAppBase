@@ -1,0 +1,40 @@
+/* Localizable.strings
+
+   Mọi key phải có mặt ở CẢ 19 file, với giá trị đã dịch —
+   tools/check-l10n.sh fail nếu thiếu một key hoặc một ngôn ngữ. */
+
+/* Dismiss button on alerts and sheets. */
+"Close" = "닫기";
+
+/* Default alert title for AlertState(error:). One word — check it is not truncated in the alert. */
+"Error" = "오류";
+
+/* SignInUseCase validation — email fails the format check. */
+"Invalid email address." = "이메일 주소가 올바르지 않습니다.";
+
+/* Title of the in-app language picker, and the toolbar button that opens it. */
+"Language" = "언어";
+
+/* AppError.offline — shown on the error state view and in alerts. */
+"No internet connection. Please try again." = "인터넷에 연결되어 있지 않습니다. 다시 시도해 주세요.";
+
+/* SignInUseCase validation. The 6 is a fixed business rule, so no plural variant is needed. */
+"Password must be at least 6 characters." = "비밀번호는 6자 이상이어야 합니다.";
+
+/* SignInUseCase validation — empty email field. */
+"Please enter your email." = "이메일을 입력해 주세요.";
+
+/* Button on the error state view. Worked example: every language this app declares is filled in here, and tools/check-l10n.sh fails if any is missing. */
+"Retry" = "다시 시도";
+
+/* AppError.unknown — deliberately generic; the technical detail goes to the log via `diagnostic`. */
+"Something went wrong. Please try again." = "문제가 발생했습니다. 다시 시도해 주세요.";
+
+/* First row of the language picker: follow the device setting. */
+"System language" = "시스템 언어";
+
+/* AppError.decoding — a backend contract change; never actionable by the user. */
+"The server returned invalid data. Please try again later." = "서버가 잘못된 데이터를 반환했습니다. 나중에 다시 시도해 주세요.";
+
+/* AppError.unauthorized — SessionController handles the sign-out; no screen shows its own message. */
+"Your session has expired." = "세션이 만료되었습니다.";

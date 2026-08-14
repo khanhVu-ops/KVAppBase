@@ -1,0 +1,40 @@
+/* Localizable.strings
+
+   Mọi key phải có mặt ở CẢ 19 file, với giá trị đã dịch —
+   tools/check-l10n.sh fail nếu thiếu một key hoặc một ngôn ngữ. */
+
+/* Dismiss button on alerts and sheets. */
+"Close" = "閉じる";
+
+/* Default alert title for AlertState(error:). One word — check it is not truncated in the alert. */
+"Error" = "エラー";
+
+/* SignInUseCase validation — email fails the format check. */
+"Invalid email address." = "メールアドレスが正しくありません。";
+
+/* Title of the in-app language picker, and the toolbar button that opens it. */
+"Language" = "言語";
+
+/* AppError.offline — shown on the error state view and in alerts. */
+"No internet connection. Please try again." = "インターネット接続がありません。もう一度お試しください。";
+
+/* SignInUseCase validation. The 6 is a fixed business rule, so no plural variant is needed. */
+"Password must be at least 6 characters." = "パスワードは6文字以上で入力してください。";
+
+/* SignInUseCase validation — empty email field. */
+"Please enter your email." = "メールアドレスを入力してください。";
+
+/* Button on the error state view. Worked example: every language this app declares is filled in here, and tools/check-l10n.sh fails if any is missing. */
+"Retry" = "再試行";
+
+/* AppError.unknown — deliberately generic; the technical detail goes to the log via `diagnostic`. */
+"Something went wrong. Please try again." = "エラーが発生しました。もう一度お試しください。";
+
+/* First row of the language picker: follow the device setting. */
+"System language" = "システムの言語";
+
+/* AppError.decoding — a backend contract change; never actionable by the user. */
+"The server returned invalid data. Please try again later." = "サーバーから無効なデータが返されました。しばらくしてからお試しください。";
+
+/* AppError.unauthorized — SessionController handles the sign-out; no screen shows its own message. */
+"Your session has expired." = "セッションの有効期限が切れました。";

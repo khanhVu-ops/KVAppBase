@@ -5,7 +5,7 @@
 # fail mọi chuỗi mới không có trong đây — nên nợ cũ không chặn việc, còn nợ mới thì
 # không thêm được.
 #
-# Trả một dòng: đưa chuỗi vào App/Resources/Localizable.xcstrings với đủ 19 ngôn ngữ,
+# Trả một dòng: thêm key vào cả 19 file App/Resources/<lang>.lproj/Localizable.strings,
 # đổi code sang dùng key English, rồi **xoá dòng đó khỏi file này**. Script fail nếu
 # một dòng ở đây không còn khớp source nào — giấy nợ đã trả phải xé, nếu không lần sau
 # không ai biết con số thật.

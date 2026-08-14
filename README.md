@@ -134,14 +134,19 @@ trong `fastlane/Fastfile` — nó fail sớm nếu bạn quên.
 App khai **19 ngôn ngữ**: en (source) · ar · zh-Hans · zh-Hant · nl · fr · de · hi ·
 id · it · ja · ko · pt-BR · pt-PT · ru · es · th · tr · vi.
 
-`App/Resources/Localizable.xcstrings` là nguồn duy nhất — XcodeGen suy `knownRegions`
-từ chính catalog, nên thêm một ngôn ngữ ở đó là Xcode hiện đúng danh sách, không có
-chỗ thứ hai để lệch. Build ra 19 folder `.lproj` trong app bundle.
+Bảng dịch là **19 file `.strings`**, mỗi ngôn ngữ một thư mục:
+`App/Resources/<lang>.lproj/Localizable.strings`. Không dùng String Catalog — file phẳng
+thì diff/merge đọc được, hệ dịch thuê ngoài nào cũng nhận, và Xcode không tự ghi vào nó
+(catalog thì bị compiler bóc chuỗi vào rồi đóng dấu `stale` lên đúng những key đang dùng
+nhiều nhất). Đánh đổi: không có cột State, và plural cần `.stringsdict` riêng.
+
+XcodeGen suy `knownRegions` từ chính các thư mục `.lproj`, nên thêm một ngôn ngữ là tạo
+thêm một thư mục — không có chỗ thứ hai để lệch.
 
 Luật: **text mới phải dịch đủ 19 ngôn ngữ ngay lúc thêm.** `tools/check-l10n.sh` bắt
 chuỗi user-facing không đi qua catalog và chuỗi thiếu bản dịch; nợ có sẵn của template
 nằm trong `tools/l10n-baseline.txt` và danh sách đó **chỉ được co lại**. Cách thêm một
-string, và chỗ dùng `String(localized:)` cho text sinh từ ViewModel/Domain: xem skill
+string, và vì sao text xuyên tầng phải mang `LocalizedStringResource`: xem skill
 `ios-l10n`.
 
 `tools/xcodegen-if-needed.sh` lo giúp trường hợp hay quên nhất: `.claude/settings.json`

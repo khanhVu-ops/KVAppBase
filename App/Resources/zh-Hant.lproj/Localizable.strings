@@ -1,0 +1,40 @@
+/* Localizable.strings
+
+   Mọi key phải có mặt ở CẢ 19 file, với giá trị đã dịch —
+   tools/check-l10n.sh fail nếu thiếu một key hoặc một ngôn ngữ. */
+
+/* Dismiss button on alerts and sheets. */
+"Close" = "關閉";
+
+/* Default alert title for AlertState(error:). One word — check it is not truncated in the alert. */
+"Error" = "錯誤";
+
+/* SignInUseCase validation — email fails the format check. */
+"Invalid email address." = "電子郵件地址無效。";
+
+/* Title of the in-app language picker, and the toolbar button that opens it. */
+"Language" = "語言";
+
+/* AppError.offline — shown on the error state view and in alerts. */
+"No internet connection. Please try again." = "沒有網路連線，請重試。";
+
+/* SignInUseCase validation. The 6 is a fixed business rule, so no plural variant is needed. */
+"Password must be at least 6 characters." = "密碼至少需要 6 個字元。";
+
+/* SignInUseCase validation — empty email field. */
+"Please enter your email." = "請輸入電子郵件地址。";
+
+/* Button on the error state view. Worked example: every language this app declares is filled in here, and tools/check-l10n.sh fails if any is missing. */
+"Retry" = "重試";
+
+/* AppError.unknown — deliberately generic; the technical detail goes to the log via `diagnostic`. */
+"Something went wrong. Please try again." = "發生錯誤，請重試。";
+
+/* First row of the language picker: follow the device setting. */
+"System language" = "系統語言";
+
+/* AppError.decoding — a backend contract change; never actionable by the user. */
+"The server returned invalid data. Please try again later." = "伺服器傳回的資料無效，請稍後重試。";
+
+/* AppError.unauthorized — SessionController handles the sign-out; no screen shows its own message. */
+"Your session has expired." = "登入已過期。";

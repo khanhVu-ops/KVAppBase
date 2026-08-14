@@ -1,0 +1,40 @@
+/* Localizable.strings
+
+   Mọi key phải có mặt ở CẢ 19 file, với giá trị đã dịch —
+   tools/check-l10n.sh fail nếu thiếu một key hoặc một ngôn ngữ. */
+
+/* Dismiss button on alerts and sheets. */
+"Close" = "Chiudi";
+
+/* Default alert title for AlertState(error:). One word — check it is not truncated in the alert. */
+"Error" = "Errore";
+
+/* SignInUseCase validation — email fails the format check. */
+"Invalid email address." = "Indirizzo email non valido.";
+
+/* Title of the in-app language picker, and the toolbar button that opens it. */
+"Language" = "Lingua";
+
+/* AppError.offline — shown on the error state view and in alerts. */
+"No internet connection. Please try again." = "Nessuna connessione a Internet. Riprova.";
+
+/* SignInUseCase validation. The 6 is a fixed business rule, so no plural variant is needed. */
+"Password must be at least 6 characters." = "La password deve contenere almeno 6 caratteri.";
+
+/* SignInUseCase validation — empty email field. */
+"Please enter your email." = "Inserisci il tuo indirizzo email.";
+
+/* Button on the error state view. Worked example: every language this app declares is filled in here, and tools/check-l10n.sh fails if any is missing. */
+"Retry" = "Riprova";
+
+/* AppError.unknown — deliberately generic; the technical detail goes to the log via `diagnostic`. */
+"Something went wrong. Please try again." = "Si è verificato un errore. Riprova.";
+
+/* First row of the language picker: follow the device setting. */
+"System language" = "Lingua di sistema";
+
+/* AppError.decoding — a backend contract change; never actionable by the user. */
+"The server returned invalid data. Please try again later." = "Il server ha restituito dati non validi. Riprova più tardi.";
+
+/* AppError.unauthorized — SessionController handles the sign-out; no screen shows its own message. */
+"Your session has expired." = "La sessione è scaduta.";

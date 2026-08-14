@@ -1,0 +1,40 @@
+/* Localizable.strings
+
+   Mọi key phải có mặt ở CẢ 19 file, với giá trị đã dịch —
+   tools/check-l10n.sh fail nếu thiếu một key hoặc một ngôn ngữ. */
+
+/* Dismiss button on alerts and sheets. */
+"Close" = "Kapat";
+
+/* Default alert title for AlertState(error:). One word — check it is not truncated in the alert. */
+"Error" = "Hata";
+
+/* SignInUseCase validation — email fails the format check. */
+"Invalid email address." = "Geçersiz e-posta adresi.";
+
+/* Title of the in-app language picker, and the toolbar button that opens it. */
+"Language" = "Dil";
+
+/* AppError.offline — shown on the error state view and in alerts. */
+"No internet connection. Please try again." = "İnternet bağlantısı yok. Lütfen tekrar deneyin.";
+
+/* SignInUseCase validation. The 6 is a fixed business rule, so no plural variant is needed. */
+"Password must be at least 6 characters." = "Şifre en az 6 karakter olmalıdır.";
+
+/* SignInUseCase validation — empty email field. */
+"Please enter your email." = "Lütfen e-posta adresinizi girin.";
+
+/* Button on the error state view. Worked example: every language this app declares is filled in here, and tools/check-l10n.sh fails if any is missing. */
+"Retry" = "Yeniden dene";
+
+/* AppError.unknown — deliberately generic; the technical detail goes to the log via `diagnostic`. */
+"Something went wrong. Please try again." = "Bir hata oluştu. Lütfen tekrar deneyin.";
+
+/* First row of the language picker: follow the device setting. */
+"System language" = "Sistem dili";
+
+/* AppError.decoding — a backend contract change; never actionable by the user. */
+"The server returned invalid data. Please try again later." = "Sunucu geçersiz veri döndürdü. Lütfen daha sonra tekrar deneyin.";
+
+/* AppError.unauthorized — SessionController handles the sign-out; no screen shows its own message. */
+"Your session has expired." = "Oturumunuzun süresi doldu.";
