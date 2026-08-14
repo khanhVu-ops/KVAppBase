@@ -39,7 +39,11 @@ struct MyApp: App {
         // 1. Logging first, so anything that fails after this point is recorded.
         let logger = AppBootstrap.startLogging()
 
-        // 2. The main-actor objects the app owns for its whole life.
+        // 2. Token của lần cài trước không được sống sang lần cài này. Phải chạy
+        //    TRƯỚC SessionController — nó seed `isSignedIn` từ chính keychain đó.
+        AppBootstrap.clearTokensOnFirstLaunch(logger: logger)
+
+        // 3. The main-actor objects the app owns for its whole life.
         let toastCenter = KVToastCenter()
         let language = LanguageStore()
         let session = SessionController(logger: logger)
@@ -49,7 +53,7 @@ struct MyApp: App {
         ])
         session.router = router
 
-        // 3. Fill the app layer of the dependency graph. Keys whose live value
+        // 4. Fill the app layer of the dependency graph. Keys whose live value
         //    needs one of the objects above cannot resolve before this runs —
         //    everything else already resolves on read, so order is not a trap.
         KVDependencies.prepare {
