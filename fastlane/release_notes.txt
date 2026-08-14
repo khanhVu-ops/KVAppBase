@@ -1,0 +1,3 @@
+<en-US>
+First build from KVAppBase.
+</en-US>

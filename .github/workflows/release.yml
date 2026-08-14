@@ -1,0 +1,70 @@
+name: Release iOS (TestFlight / App Store / App Distribution)
+
+# "Một nơi để request": chạy thủ công từ tab Actions (nút Run workflow) hoặc CLI:
+#   gh workflow run release.yml -f lane=beta
+#
+# Job chạy trên self-hosted macOS runner = máy chứa chứng chỉ ký. Build + ký +
+# upload diễn ra NGAY TRÊN MÁY ĐÓ; chứng chỉ không rời máy, GitHub chỉ trigger.
+on:
+  workflow_dispatch:
+    inputs:
+      lane:
+        description: "Lane fastlane"
+        type: choice
+        required: true
+        default: beta
+        options:
+          - beta       # upload TestFlight
+          - web_test   # ad-hoc + upload App Distribution (var-meta)
+          - release    # đẩy App Store (không tự submit review)
+          - build_only # chỉ build .ipa đã ký
+      release_note:
+        description: "Release note (chỉ lane web_test; trống → release_notes.txt → commit gần nhất)"
+        type: string
+        required: false
+        default: ""
+
+jobs:
+  release:
+    runs-on: [self-hosted, varmeta]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        # KHÔNG ghim ref: build đúng nhánh đã chọn ở ô "Use workflow from".
+
+      # codesign chỉ quét identity trong search list, nên đưa nó về mức tối thiểu
+      # loại MỌI keychain rác của job cũ khỏi phạm vi, tránh popup "codesign wants
+      # to use the ... keychain" làm treo runner. Không xoá keychain theo tên để
+      # không đụng build song song của project khác.
+      - name: Reset keychain search list
+        run: security list-keychains -d user -s login.keychain-db 2>/dev/null || true
+
+      - name: Đảm bảo có Metal Toolchain
+        run: xcrun -sdk iphoneos metal --version >/dev/null 2>&1 || xcodebuild -downloadComponent MetalToolchain
+
+      # Repo này sinh .xcodeproj từ project.yml (đã gitignore), nên runner bắt buộc
+      # có xcodegen — fastlane cũng kiểm lại và báo rõ nếu thiếu.
+      - name: Cài xcodegen nếu thiếu
+        run: command -v xcodegen >/dev/null 2>&1 || brew install xcodegen
+
+      # Secrets bền vững NGOÀI checkout, copy vào lúc build:
+      #   ~/secrets/fastlane/asc-api-key.json    (DÙNG CHUNG mọi app)
+      #   ~/secrets/fastlane/signing.properties  (RIÊNG app này) + .p12 + .mobileprovision
+      - name: Đưa secrets local vào checkout
+        run: |
+          cp ~/secrets/fastlane/asc-api-key.json ./fastlane/asc-api-key.json
+          cp ~/secrets/fastlane/signing.properties ./fastlane/signing.properties
+
+      - name: Build + ký + upload (fastlane)
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DIST_WEB_EMAIL: ${{ secrets.DIST_WEB_EMAIL }}
+          DIST_WEB_PASSWORD: ${{ secrets.DIST_WEB_PASSWORD }}
+          DIST_RELEASE_NOTE: ${{ inputs.release_note }}
+        run: fastlane ios ${{ inputs.lane }}
+
+      # `always()`: secret phải rời checkout kể cả khi build đỏ.
+      - name: Dọn secrets khỏi checkout
+        if: always()
+        run: rm -f ./fastlane/asc-api-key.json ./fastlane/signing.properties

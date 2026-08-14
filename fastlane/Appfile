@@ -1,0 +1,5 @@
+# Bundle ID của app. init-base.sh thay giá trị này khi tạo repo mới.
+app_identifier("com.example.myapp")
+
+# App Store Connect API key được nạp trong Fastfile từ fastlane/asc-api-key.json
+# (copy từ ~/secrets/fastlane/asc-api-key.json) → không cần apple_id ở đây.

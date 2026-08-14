@@ -99,6 +99,36 @@ xcodegen generate                  # sau khi thêm/di chuyển BẤT KỲ file n
 ./tools/verify.sh                  # tất cả + build + test
 ```
 
+## CI/CD
+
+Hai workflow, chạy trên self-hosted macOS runner (nhãn `varmeta`) — máy có sẵn Xcode,
+simulator và **chứng chỉ ký**. Chứng chỉ không rời máy đó; GitHub chỉ trigger.
+
+| Workflow | Khi nào | Làm gì |
+|---|---|---|
+| `.github/workflows/verify.yml` | push `main`, mọi PR | `./tools/verify.sh` — luật kiến trúc → self-test → localization → build → test |
+| `.github/workflows/release.yml` | bấm tay (Actions → Run workflow) | `fastlane ios <lane>` |
+
+```bash
+fastlane ios build_only   # build .ipa đã ký, không upload
+fastlane ios beta         # TestFlight
+fastlane ios web_test     # ad-hoc → App Distribution nội bộ (var-meta)
+fastlane ios release      # App Store, không tự submit review
+```
+
+Khác các app CocoaPods của team ở ba điểm, đều vì repo này là một target + XcodeGen:
+mọi lane `xcodegen generate` trước (`.xcodeproj` gitignore, checkout của CI không có
+nó), `build_app` nhận `project:` chứ không phải `workspace:`, và version đọc từ
+`project.yml` — `MARKETING_VERSION` + `CURRENT_PROJECT_VERSION` là **nguồn duy nhất**,
+`Info.plist` chỉ tham chiếu chúng. fastlane không tự tăng version: sửa `project.yml`
+rồi commit, để số trên TestFlight luôn truy ngược được về một commit.
+
+Secret nằm ngoài repo, workflow copy vào lúc build rồi xoá (kể cả khi build đỏ):
+`~/secrets/fastlane/asc-api-key.json` (dùng chung mọi app) và
+`~/secrets/fastlane/signing.properties` (riêng app này, trỏ tới `.p12` + profile).
+Cả hai đã nằm trong `.gitignore`. Trước lane `web_test` đầu tiên phải đặt `DIST_CODE`
+trong `fastlane/Fastfile` — nó fail sớm nếu bạn quên.
+
 ## Localization
 
 App khai **19 ngôn ngữ**: en (source) · ar · zh-Hans · zh-Hant · nl · fr · de · hi ·

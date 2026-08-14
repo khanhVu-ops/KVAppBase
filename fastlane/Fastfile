@@ -1,0 +1,490 @@
+# Fastfile — build & release lên TestFlight / App Store / App Distribution.
+#
+# Port từ chuẩn đang chạy của các app VarMeta (ReverseAudio, Speaker-Cleaner, …),
+# giữ nguyên mô hình: **khoá ký ở lại máy**, GitHub chỉ trigger. Secret nằm ngoài
+# repo trong ~/secrets/ và được workflow copy vào checkout trước khi build, xoá sau.
+#
+#   1) fastlane/asc-api-key.json   ← ~/secrets/fastlane/asc-api-key.json  (DÙNG CHUNG mọi app)
+#   2) fastlane/signing.properties ← ~/secrets/fastlane/signing.properties (RIÊNG từng app)
+#
+# BA KHÁC BIỆT so với các app cũ, vì repo này là app một target + XcodeGen:
+#
+#   1. Không có CocoaPods, không có .xcworkspace. `build_app` nhận `project:`.
+#   2. `.xcodeproj` **được sinh ra và đã gitignore** — checkout của CI không có nó.
+#      Nên mọi lane chạy `xcodegen generate` trước. Quên bước này thì lỗi hiện ra
+#      là "does not exist", không phải "thiếu xcodegen", nên nó được kiểm tường minh.
+#   3. Version đọc từ `project.yml` (nguồn duy nhất), không phải project.pbxproj —
+#      pbxproj là sản phẩm sinh ra, đọc nó là đọc cái bóng.
+#
+# Chạy local (đứng ở gốc repo):
+#   fastlane ios build_only   # build .ipa đã ký, không upload
+#   fastlane ios beta         # upload TestFlight
+#   fastlane ios web_test     # ad-hoc + upload App Distribution nội bộ
+#   fastlane ios release      # đẩy App Store (không tự submit review)
+
+require "json"
+require "fileutils"
+require "net/http"
+require "uri"
+require "yaml"
+
+# ============================================================================
+# CONFIG PER-APP — init-base.sh đã thay tên/bundle id; sửa tay khi cần đổi thêm.
+# ============================================================================
+XCODEPROJ           = "MyApp.xcodeproj"
+SCHEME              = "MyApp"
+APP_TARGET          = "MyApp"
+APP_IDENTIFIER      = "com.example.myapp"
+# Lane web_test ép bundle id về App ID test dùng chung của var-meta, để QA cài OTA
+# mà không cần app thật đã có trên store.
+WEB_TEST_IDENTIFIER = "varmeta.test.app"
+# Mã 3 số — key tìm/tạo app trên App Distribution. ĐỔI khi tạo app mới.
+DIST_CODE           = "000"
+OUTPUT_DIR          = "./build"
+# Configuration cho từng nhóm lane. Staging trỏ api-staging và tắt stub backend,
+# đúng thứ QA cần; store lane thì Release.
+STORE_CONFIGURATION = "Release"
+WEB_TEST_CONFIGURATION = "Staging"
+# ============================================================================
+
+ENV["LANG"]   ||= "en_US.UTF-8"
+ENV["LC_ALL"] ||= "en_US.UTF-8"
+
+# Chọn Xcode. KHÔNG hardcode một path cứng: mỗi self-hosted runner cài Xcode ở
+# path/tên khác nhau (Xcode.app, Xcode-16.app…), hardcode sai thì xcrun báo
+# "missing DEVELOPER_DIR path".
+def resolve_developer_dir
+  cur = ENV["DEVELOPER_DIR"]
+  return cur if cur && !cur.empty? && File.directory?(cur)
+  selected = `xcode-select -p 2>/dev/null`.strip rescue ""
+  return selected if !selected.empty? && File.directory?(selected)
+  Dir.glob("/Applications/Xcode*.app/Contents/Developer").find { |d| File.directory?(d) }
+end
+if (dev_dir = resolve_developer_dir)
+  ENV["DEVELOPER_DIR"] = dev_dir
+end
+
+default_platform(:ios)
+
+def project_root
+  File.expand_path("..", __dir__)
+end
+
+# Neo đường dẫn secret theo vị trí THẬT của file này, không theo thư mục đang đứng.
+def secret_path(name)
+  candidates = []
+  candidates << File.join(__dir__, name) if defined?(__dir__) && __dir__
+  candidates << File.join(Dir.pwd, "fastlane", name)
+  candidates << File.join(Dir.pwd, name)
+  candidates.find { |p| File.exist?(p) } || candidates.first
+end
+
+ASC_KEY_JSON  = secret_path("asc-api-key.json")
+SIGNING_PROPS = secret_path("signing.properties")
+
+# Đọc file .properties (key=value), giống keystore.properties bên Android.
+def load_props(path)
+  props = {}
+  File.foreach(path) do |line|
+    s = line.strip
+    next if s.empty? || s.start_with?("#")
+    k, v = s.split("=", 2)
+    props[k.strip] = v.to_s.strip if v
+  end
+  props
+end
+
+# ============================================================================
+# THÔNG BÁO / BÁO CÁO CI — Telegram + Job Summary. Thuần Net::HTTP nên chạy
+# giống nhau trên mọi runner macOS.
+# ============================================================================
+
+# Không có secret → bỏ qua im lặng (vd chạy local). Lỗi gửi KHÔNG làm hỏng build:
+# một cái build tốt không nên đỏ vì Telegram bận.
+def tg_send(text)
+  token = ENV["TELEGRAM_BOT_TOKEN"].to_s
+  chat  = ENV["TELEGRAM_CHAT_ID"].to_s
+  return if token.empty? || chat.empty?
+
+  uri  = URI("https://api.telegram.org/bot#{token}/sendMessage")
+  http = Net::HTTP.new(uri.host, uri.port)
+  http.use_ssl = true
+  req  = Net::HTTP::Post.new(uri)
+  req.set_form_data("chat_id" => chat, "text" => text, "disable_web_page_preview" => "true")
+  http.request(req)
+rescue => e
+  UI.error("Không gửi được Telegram: #{e.message}")
+end
+
+def gha_run_url
+  return nil unless ENV["GITHUB_ACTIONS"] == "true"
+  "#{ENV['GITHUB_SERVER_URL']}/#{ENV['GITHUB_REPOSITORY']}/actions/runs/#{ENV['GITHUB_RUN_ID']}"
+end
+
+# Version đọc từ project.yml — nguồn duy nhất. pbxproj là sản phẩm sinh ra từ đây,
+# và nó không có trong git, nên đọc nó trên CI là đọc một file có thể chưa tồn tại.
+def project_versions
+  spec = File.join(project_root, "project.yml")
+  return ["?", "?"] unless File.exist?(spec)
+  yaml = YAML.load_file(spec) || {}
+  base = yaml.dig("settings", "base") || {}
+  [base["MARKETING_VERSION"].to_s, base["CURRENT_PROJECT_VERSION"].to_s].map { |v| v.empty? ? "?" : v }
+rescue => e
+  UI.error("Không đọc được version từ project.yml: #{e.message}")
+  ["?", "?"]
+end
+
+# Release notes cho TestFlight ("What to Test"). Một file: fastlane/release_notes.txt.
+def read_testflight_changelog
+  f = File.join(__dir__, "release_notes.txt")
+  return nil unless File.exist?(f)
+  raw = File.read(f, encoding: "UTF-8")
+  m = raw.match(%r{<en-US>(.*?)</en-US>}m) || raw.match(%r{<en>(.*?)</en>}m)
+  text = (m ? m[1] : raw).strip
+  text.empty? ? nil : text
+end
+
+def notify_success(lane:, extra: {})
+  version, build = project_versions
+  if ENV["GITHUB_ACTIONS"] == "true"
+    puts "::notice title=iOS build success::v#{version} (build #{build}) · lane #{lane}"
+    summary = ENV["GITHUB_STEP_SUMMARY"]
+    if summary && !summary.empty?
+      rows = { "Version" => version, "Build number" => build, "Lane" => lane }.merge(extra)
+      md = +"### ✅ iOS build success\n\n| Field | Value |\n|---|---|\n"
+      rows.each { |k, v| md << "| #{k} | `#{v}` |\n" }
+      md << "| GitHub run | `##{ENV['GITHUB_RUN_NUMBER']}` |\n"
+      File.write(summary, md, mode: "a")
+    end
+  end
+  tg_send([
+    "✅ iOS Build SUCCESS",
+    "📦 #{ENV['GITHUB_REPOSITORY'] || 'local'}",
+    "🏷️ v#{version} (build #{build})",
+    "🚀 lane: #{lane}#{extra.map { |k, v| " · #{k.downcase}: #{v}" }.join}",
+    ENV["GITHUB_ACTOR"] ? "👤 #{ENV['GITHUB_ACTOR']}" : nil,
+    gha_run_url
+  ].compact.join("\n"))
+end
+
+# ============================================================================
+# APP DISTRIBUTION (var-meta) — upload IPA ad-hoc lên web nội bộ.
+# Auth bằng session cookie (POST /login), không có API key.
+# ============================================================================
+DIST_BASE_URL = "https://dev.ai-app-studio.var-meta.com/app-distribution"
+
+def dist_http(uri)
+  http = Net::HTTP.new(uri.host, uri.port)
+  http.use_ssl = (uri.scheme == "https")
+  http.read_timeout = 600   # upload IPA có thể lâu
+  http
+end
+
+def dist_login(base, email, password)
+  uri = URI("#{base}/login")
+  req = Net::HTTP::Post.new(uri)
+  req.set_form_data("email" => email, "password" => password)
+  res = dist_http(uri).request(req)
+  cookies = Array(res.get_fields("set-cookie")).map { |c| c.split(";", 2).first }.join("; ")
+  UI.user_error!("Login App Distribution thất bại (HTTP #{res.code}). Kiểm tra DIST_WEB_EMAIL/PASSWORD.") if cookies.empty?
+  cookies
+end
+
+# Tìm app_id theo mã 3 số trên /admin/ios/apps; chưa có thì tạo rồi tìm lại.
+# Response là HTML nên parse bằng regex — web đổi layout thì chỉ cần sửa PAT.
+def dist_resolve_app_id(base, cookie, code)
+  pat = %r{/admin/ios/apps/(\d+)[^>]*>[^<]*#{Regexp.escape(code)}}
+  fetch = lambda do
+    uri = URI("#{base}/admin/ios/apps")
+    req = Net::HTTP::Get.new(uri); req["Cookie"] = cookie
+    dist_http(uri).request(req).body.to_s
+  end
+  id = fetch.call[pat, 1]
+  unless id
+    UI.message("Chưa có app '#{code}' trên web → tạo mới…")
+    uri = URI("#{base}/admin/ios/apps")
+    req = Net::HTTP::Post.new(uri); req["Cookie"] = cookie
+    req.set_form_data("name" => code)
+    dist_http(uri).request(req)
+    id = fetch.call[pat, 1]
+  end
+  id
+end
+
+def dist_upload(base, cookie, app_id, ipa_path, note)
+  uri = URI("#{base}/admin/ios/apps/#{app_id}/upload")
+  boundary = "----fastlane#{Time.now.to_i}"
+  # Thân multipart PHẢI dựng ở encoding BINARY: release note thường là tiếng Việt
+  # có dấu (UTF-8), nối với File.binread (ASCII-8BIT) sẽ ném
+  # Encoding::CompatibilityError. Ép mọi mảnh về .b → luôn cùng encoding, bytes
+  # UTF-8 của note vẫn nguyên nên server đọc đúng.
+  body = String.new(encoding: Encoding::BINARY)
+  body << "--#{boundary}\r\nContent-Disposition: form-data; name=\"release_note\"\r\n\r\n#{note}\r\n".b
+  body << "--#{boundary}\r\nContent-Disposition: form-data; name=\"artifact\"; filename=\"#{File.basename(ipa_path)}\"\r\n".b
+  body << "Content-Type: application/octet-stream\r\n\r\n".b
+  body << File.binread(ipa_path)
+  body << "\r\n--#{boundary}--\r\n".b
+  req = Net::HTTP::Post.new(uri)
+  req["Cookie"] = cookie
+  req["Content-Type"] = "multipart/form-data; boundary=#{boundary}"
+  req.body = body
+  res = dist_http(uri).request(req)
+  # Upload OK trả 303 (Post/Redirect/Get) → nhận cả 2xx lẫn 3xx, chỉ >=400 là lỗi.
+  code = res.code.to_i
+  if code >= 400
+    UI.user_error!("Upload thất bại (HTTP #{code}): #{res.body.to_s[0, 300]}")
+  elsif code >= 300 && res["location"].to_s.include?("/login")
+    UI.user_error!("Upload bị redirect về /login (HTTP #{code}) — phiên đăng nhập không hợp lệ.")
+  end
+end
+
+platform :ios do
+
+  # ---- Sinh project. Bước riêng của repo này. ----
+  # `.xcodeproj` gitignore nên checkout của CI KHÔNG có nó. Kiểm xcodegen trước và
+  # báo đúng nguyên nhân, thay vì để xcodebuild báo "project does not exist".
+  def generate_project
+    Dir.chdir(project_root) do
+      unless system("command -v xcodegen >/dev/null 2>&1")
+        UI.user_error!("Thiếu xcodegen (brew install xcodegen). Repo này sinh .xcodeproj từ project.yml.")
+      end
+      sh("xcodegen generate --quiet")
+    end
+    UI.success("✓ Đã sinh #{XCODEPROJ} từ project.yml")
+  end
+
+  # ---- App Store Connect API key (dùng chung mọi app) ----
+  def asc_api_key
+    return @asc_key if @asc_key
+    UI.user_error!("Thiếu #{ASC_KEY_JSON}. Copy từ ~/secrets/fastlane/asc-api-key.json.") \
+      unless File.exist?(ASC_KEY_JSON)
+    data = JSON.parse(File.read(ASC_KEY_JSON))
+    @asc_key = app_store_connect_api_key(
+      key_id: data["key_id"],
+      issuer_id: data["issuer_id"],
+      key_content: data["key"],
+      in_house: data.fetch("in_house", false)
+    )
+  end
+
+  # ---- Code signing từ signing.properties ----
+  # Import .p12 vào một keychain tạm + cài provisioning profile, trả về
+  # { profile_name:, team_id: } để build_app ký manual.
+  def setup_signing(adhoc: false, app_identifier: APP_IDENTIFIER)
+    @signing ||= {}
+    memo = "#{adhoc}|#{app_identifier}"
+    return @signing[memo] if @signing[memo]
+
+    UI.user_error!("Thiếu #{SIGNING_PROPS}. Copy từ ~/secrets/fastlane/signing.properties.") \
+      unless File.exist?(SIGNING_PROPS)
+    p = load_props(SIGNING_PROPS)
+    cert_file = File.expand_path(p.fetch("certFile") { UI.user_error!("Thiếu key 'certFile' trong #{SIGNING_PROPS}") })
+    UI.user_error!("Không thấy file .p12: #{cert_file}") unless File.exist?(cert_file)
+
+    kc_name = "fastlane_#{APP_TARGET.downcase}.keychain"
+    kc_pass = "fastlane_ci"
+
+    # Reset search list về baseline TRƯỚC khi bắt đầu: codesign chỉ quét identity
+    # trong search list, nên khống chế nó là đủ để loại mọi keychain rác của job
+    # cũ. KHÔNG xoá keychain theo tên — build song song của project khác vẫn sống.
+    sh(%(security list-keychains -d user -s login.keychain-db 2>/dev/null || true), log: false)
+
+    delete_keychain(name: kc_name) rescue nil
+    create_keychain(name: kc_name, password: kc_pass, default_keychain: true,
+                    unlock: true, timeout: 3600, lock_when_sleeps: false,
+                    add_to_search_list: true)
+    import_certificate(certificate_path: cert_file,
+                       certificate_password: p.fetch("certPassword", ""),
+                       keychain_name: kc_name, keychain_password: kc_pass)
+
+    # Apple WWDR intermediate — BẮT BUỘC để codesign dựng đủ chain (leaf "Apple
+    # Distribution" → WWDR → Apple Root). Runner không có WWDR trong keychain tạm
+    # thì codesign báo "unable to build chain to self-signed root" +
+    # errSecInternalComponent, một lỗi đọc như lỗi cert chứ không như lỗi thiếu file.
+    wwdr_local = p["wwdrFile"].to_s.strip
+    wwdr_files = []
+    if !wwdr_local.empty? && File.exist?(File.expand_path(wwdr_local))
+      wwdr_files << File.expand_path(wwdr_local)
+    else
+      {
+        "AppleWWDRCAG3" => "https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer",
+        "AppleWWDRCAG6" => "https://www.apple.com/certificateauthority/AppleWWDRCAG6.cer"
+      }.each do |name, url|
+        dest = "/tmp/#{name}.cer"
+        sh(%(curl -fsSL -o "#{dest}" "#{url}" 2>/dev/null || true), log: false)
+        wwdr_files << dest if File.exist?(dest) && File.size(dest) > 0
+      end
+    end
+    # RAW security: fastlane import_certificate hay nuốt lỗi với .cer. Cert đã có
+    # → exit != 0 ("already exists") → '|| true'.
+    wwdr_files.each do |f|
+      sh(%(security import "#{f}" -k "#{kc_name}" -T /usr/bin/codesign 2>/dev/null || true), log: false)
+    end
+
+    profile_key = adhoc ? "adhocProfileFile" : "profileFile"
+    profile_file = File.expand_path(p.fetch(profile_key) {
+      UI.user_error!("Thiếu key '#{profile_key}' trong #{SIGNING_PROPS} (profile cho #{adhoc ? 'ad-hoc' : 'App Store'}).")
+    })
+    UI.user_error!("Không thấy provisioning profile: #{profile_file}") unless File.exist?(profile_file)
+    install_provisioning_profile(path: profile_file)
+
+    profile_name = sh(%(/usr/libexec/PlistBuddy -c 'Print :Name' /dev/stdin <<< "$(security cms -D -i '#{profile_file}')"), log: false).strip
+    team_id = p.fetch("teamId") { UI.user_error!("Thiếu key 'teamId' trong #{SIGNING_PROPS}") }
+
+    @signing[memo] = { profile_name: profile_name, team_id: team_id,
+                       keychain: kc_name, keychain_pass: kc_pass }
+  end
+
+  # Mở lại + khống chế keychain NGAY TRƯỚC mỗi lần build. Trên runner headless
+  # (không GUI login) securityd thi thoảng không cấp quyền ký.
+  def unlock_signing_keychain(s)
+    return unless s
+    kc = s[:keychain]; pw = s[:keychain_pass]
+    return unless kc && pw
+    sh(%(security list-keychains -d user -s "#{kc}" login.keychain-db), log: false)
+    sh(%(security default-keychain -d user -s "#{kc}"), log: false)
+    sh(%(security unlock-keychain -p "#{pw}" "#{kc}"), log: false)
+    sh(%(security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "#{pw}" "#{kc}" >/dev/null 2>&1 || true), log: false)
+    sh(%(security set-keychain-settings "#{kc}"), log: false)   # không -t = tắt auto-lock
+  end
+
+  SIGN_MAX_ATTEMPTS = 4
+
+  # Lỗi KÝ chập chờn (không phải bug code) — đáng retry. Đừng nới ra: retry một
+  # lỗi build thật chỉ làm CI chậm gấp bốn rồi vẫn đỏ.
+  def codesign_flaky?(exception)
+    "#{exception.message}".match?(/errSecInternalComponent|unable to build chain to self-signed root|could not be found in the keychain|errSecItemNotFound|Sec(Keychain|Trust)/i)
+  end
+
+  def build_signed_ipa(adhoc: false, bundle_id: APP_IDENTIFIER)
+    generate_project
+    s = setup_signing(adhoc: adhoc, app_identifier: bundle_id)
+
+    UI.message("Bundle ID dùng để build: #{bundle_id} (#{adhoc ? 'ad-hoc' : 'store'})")
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: XCODEPROJ,
+      targets: [APP_TARGET],
+      team_id: s[:team_id],
+      code_sign_identity: "Apple Distribution",
+      profile_name: s[:profile_name],
+      bundle_identifier: bundle_id
+    )
+
+    attempt = 0
+    begin
+      attempt += 1
+      unlock_signing_keychain(s)
+      build_app(
+        project: XCODEPROJ,
+        scheme: SCHEME,
+        configuration: adhoc ? WEB_TEST_CONFIGURATION : STORE_CONFIGURATION,
+        export_method: adhoc ? "ad-hoc" : "app-store",
+        output_directory: OUTPUT_DIR,
+        clean: true,
+        xcargs: "-skipMacroValidation -skipPackagePluginValidation",
+        export_options: {
+          signingStyle: "manual",
+          provisioningProfiles: { bundle_id => s[:profile_name] }
+        }
+      )
+    rescue => e
+      if codesign_flaky?(e) && attempt < SIGN_MAX_ATTEMPTS
+        UI.important("⚠️ Ký chập chờn lần #{attempt}/#{SIGN_MAX_ATTEMPTS} — mở lại keychain rồi thử lại…")
+        sleep 8
+        retry
+      end
+      raise e
+    end
+  end
+
+  desc "Luật kiến trúc + localization + build + test (giống ./tools/verify.sh)"
+  lane :verify do
+    Dir.chdir(project_root) { sh("./tools/verify.sh") }
+    UI.success("✅ verify.sh xanh.")
+  end
+
+  desc "Build .ipa đã ký, KHÔNG upload — verify ký + build OK"
+  lane :build_only do
+    build_signed_ipa
+    UI.success("✅ IPA đã build & ký xong trong #{OUTPUT_DIR}")
+  end
+
+  desc "Build + upload lên TestFlight (dùng version trong project.yml)"
+  lane :beta do
+    api_key = asc_api_key
+    build_signed_ipa
+    upload_to_testflight(api_key: api_key, app_identifier: APP_IDENTIFIER,
+                         skip_waiting_for_build_processing: true,
+                         changelog: read_testflight_changelog)
+    UI.success("✅ Đã upload lên TestFlight.")
+    notify_success(lane: "beta", extra: { "Target" => "TestFlight" })
+  end
+
+  desc "Build ad-hoc (bundle id → varmeta.test.app) + upload App Distribution nội bộ"
+  lane :web_test do
+    email = ENV["DIST_WEB_EMAIL"].to_s
+    pass  = ENV["DIST_WEB_PASSWORD"].to_s
+    UI.user_error!("Thiếu secret DIST_WEB_EMAIL / DIST_WEB_PASSWORD.") if email.empty? || pass.empty?
+    UI.user_error!("DIST_CODE vẫn là '000' — đặt mã 3 số của app trong fastlane/Fastfile.") if DIST_CODE == "000"
+    base = DIST_BASE_URL.chomp("/")
+
+    # Note: ô nhập trên form Run workflow → release_notes.txt → commit gần nhất.
+    note = ENV["DIST_RELEASE_NOTE"].to_s.strip
+    note = read_testflight_changelog.to_s.strip if note.empty?
+    note = `git -C '#{project_root}' log -1 --pretty=%h\\ %s 2>/dev/null`.strip if note.empty?
+
+    build_signed_ipa(adhoc: true, bundle_id: WEB_TEST_IDENTIFIER)
+    ipa = lane_context[SharedValues::IPA_OUTPUT_PATH]
+    UI.user_error!("Không tìm thấy .ipa sau build.") unless ipa && File.exist?(ipa)
+
+    cookie = dist_login(base, email, pass)
+    app_id = dist_resolve_app_id(base, cookie, DIST_CODE)
+    UI.user_error!("Không tìm/tạo được app '#{DIST_CODE}' trên App Distribution.") unless app_id
+    dist_upload(base, cookie, app_id, ipa, note)
+
+    UI.success("✅ Đã upload IPA (ad-hoc) lên App Distribution — #{DIST_CODE} (app_id=#{app_id}).")
+    notify_success(lane: "web_test", extra: { "Target" => "App Distribution", "AppID" => app_id, "BundleID" => WEB_TEST_IDENTIFIER })
+  end
+
+  desc "Build + đẩy App Store (không tự submit review)"
+  lane :release do
+    api_key = asc_api_key
+    build_signed_ipa
+    upload_to_app_store(
+      api_key: api_key, app_identifier: APP_IDENTIFIER,
+      submit_for_review: false, automatic_release: false,
+      force: true, skip_screenshots: true, skip_metadata: true,
+      precheck_include_in_app_purchases: false
+    )
+    UI.success("✅ Đã đẩy bản lên App Store (chưa submit review).")
+    notify_success(lane: "release", extra: { "Target" => "App Store", "Status" => "draft" })
+  end
+
+  # Chạy khi BẤT KỲ lane nào lỗi. Đẩy đúng lý do ra GitHub Actions (annotation đỏ
+  # + Job Summary) và Telegram, thay vì chỉ để lại "exit code 65" trong log.
+  error do |lane, exception|
+    msg = exception.message.to_s.strip
+    msg = "fastlane lane '#{lane}' thất bại (không có message chi tiết)." if msg.empty?
+
+    if ENV["GITHUB_ACTIONS"] == "true"
+      esc = msg.gsub("%", "%25").gsub("\r", "%0D").gsub("\n", "%0A")
+      puts "::error title=fastlane #{lane} failed::#{esc}"
+      summary = ENV["GITHUB_STEP_SUMMARY"]
+      if summary && !summary.empty?
+        File.write(summary, "### ❌ fastlane `#{lane}` failed\n\n```\n#{msg}\n```\n", mode: "a")
+      end
+    end
+
+    short = msg.length > 800 ? "#{msg[0, 800]}…" : msg
+    tg_send([
+      "❌ iOS Build FAILED",
+      "📦 #{ENV['GITHUB_REPOSITORY'] || 'local'}",
+      "🔧 lane: #{lane}",
+      ENV["GITHUB_ACTOR"] ? "👤 #{ENV['GITHUB_ACTOR']}" : nil,
+      gha_run_url,
+      "",
+      short
+    ].compact.join("\n"))
+  end
+end

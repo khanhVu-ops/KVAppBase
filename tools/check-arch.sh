@@ -209,7 +209,7 @@ documented=$(grep -oE '^[A-Z][A-Za-z]*/' README.md | tr -d '/' | sort -u)
 # .claude và config của kit — fail ngay ở lệnh verify đầu tiên của nó.
 actual=$(find . -maxdepth 1 -type d \
     -not -name '.*' -not -name 'tools' -not -name 'config' -not -name 'docs' \
-    -not -name '*.xcodeproj' \
+    -not -name 'fastlane' -not -name 'build' -not -name '*.xcodeproj' \
     | sed 's|^\./||' | sort -u)
 missing=$(comm -23 <(echo "$actual") <(echo "$documented"))
 extra=$(comm -13 <(echo "$actual") <(echo "$documented"))

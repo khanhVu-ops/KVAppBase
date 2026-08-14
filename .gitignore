@@ -8,3 +8,13 @@ DerivedData/
 *.xcuserstate
 xcuserdata/
 Packages/*/.build/
+
+# fastlane: secret được copy vào lúc build rồi xoá — không bao giờ được commit.
+fastlane/asc-api-key.json
+fastlane/signing.properties
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/test_output
+build/
+*.ipa
+*.dSYM.zip

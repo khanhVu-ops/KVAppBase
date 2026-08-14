@@ -1,0 +1,46 @@
+name: Verify
+
+# Luật kiến trúc, localization, build và test — chạy tự động thay vì trông vào
+# việc ai đó nhớ gõ ./tools/verify.sh. AGENTS.md nói các luật này "checked in CI";
+# file này là chỗ câu đó thành sự thật.
+#
+# Chạy trên self-hosted macOS runner: verify.sh cần Xcode + simulator, và runner
+# đó là máy đã có sẵn cả hai.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Một PR push liên tiếp thì chỉ giữ lần chạy mới nhất — build iOS đắt.
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: [self-hosted, varmeta]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Xcode 16+ tách compiler `metal` ra component tải riêng. Thiếu nó thì build
+      # fail với "cannot execute tool 'metal'", một thông báo không gợi ý gì về
+      # nguyên nhân. Check rẻ, chỉ tải (~690MB) khi thật sự thiếu.
+      - name: Đảm bảo có Metal Toolchain
+        run: xcrun -sdk iphoneos metal --version >/dev/null 2>&1 || xcodebuild -downloadComponent MetalToolchain
+
+      - name: Cài xcodegen nếu thiếu
+        run: command -v xcodegen >/dev/null 2>&1 || brew install xcodegen
+
+      # verify.sh tự lo: 10 luật kiến trúc → 11 self-test → localization →
+      # xcodegen → build + test. Nó cũng tự boot simulator và retry đúng một lần
+      # khi runner chết trước khi test runner nối được.
+      - name: verify.sh
+        run: ./tools/verify.sh
+
+      # Log build đầy đủ khi đỏ — đọc annotation của xcodebuild trong Actions UI
+      # gần như luôn không đủ để biết chuyện gì.
+      - name: Log xcodebuild khi thất bại
+        if: failure()
+        run: tail -200 "/tmp/$(basename "$PWD")-dd/last-xcodebuild.log" || true
