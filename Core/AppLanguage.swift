@@ -2,8 +2,8 @@ import Foundation
 
 /// Ngôn ngữ người dùng chọn **trong app**, không phải ngôn ngữ của máy.
 ///
-/// Danh sách này phải khớp `LANGUAGES` trong `tools/check-l10n.sh` và các ngôn ngữ
-/// khai trong `Localizable.xcstrings` — `check-l10n.sh` so ba chỗ đó với nhau, vì một
+/// Danh sách này phải khớp `LANGUAGES` trong `tools/check-l10n.sh` và các thư mục
+/// `App/Resources/<lang>.lproj` — `check-l10n.sh` so ba chỗ đó với nhau, vì một
 /// ngôn ngữ có trong picker mà không có bản dịch là cách nhanh nhất để người dùng
 /// chọn xong rồi thấy toàn tiếng Anh.
 enum AppLanguage: String, CaseIterable, Identifiable, Sendable {

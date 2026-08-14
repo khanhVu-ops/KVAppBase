@@ -35,7 +35,7 @@ settings:
 packages:
   KVRouter:
     url: https://github.com/khanhVu-ops/KVRouter.git
-    from: 3.2.1
+    from: 3.5.0
   KVDIKit:
     url: https://github.com/khanhVu-ops/KVDIKit.git
     from: 1.0.0
@@ -47,7 +47,7 @@ packages:
     from: 1.0.0
   KVLoggingKit:
     url: https://github.com/khanhVu-ops/KVLoggingKit.git
-    from: 1.0.0
+    from: 1.1.0
   # Ảnh từ URL đi qua Kingfisher, không dùng AsyncImage: AsyncImage không cache
   # xuống đĩa, không downsample, và tải lại mỗi lần cell cuộn qua.
   Kingfisher:

@@ -13,3 +13,8 @@ enum OrderRoute: KVRestorableRoute {
     case detail(id: String)
     case history
 }
+
+/// Orders belong to a user, so every screen in this flow needs a session.
+/// `AuthGuardMiddleware` reads this and nothing else — the guard never learns
+/// the names of the features it protects.
+extension OrderRoute: RequiresAuthentication {}

@@ -26,20 +26,24 @@ struct LoadableContent<Value: Equatable & Sendable, Content: View>: View {
     }
 }
 
+// Preview dùng `[String]`, không dùng entity của app. DesignSystem phải dựng
+// được mà không cần biết app này bán hàng hay đo bước chân — và một app tạo từ
+// template không có `Order` để mà preview.
+
 #Preview("Đã tải") {
-    LoadableContent(state: .loaded(Order.samples), loadingMessage: "Loading orders", onRetry: {}) { orders in
-        Text(verbatim: "\(orders.count) đơn hàng")
+    LoadableContent(state: .loaded(["A", "B", "C"]), loadingMessage: "Loading", onRetry: {}) { items in
+        Text(verbatim: "\(items.count) mục")
     }
 }
 
 #Preview("Đang tải") {
-    LoadableContent(state: Loadable<[Order]>.loading, loadingMessage: "Loading orders", onRetry: {}) { _ in
+    LoadableContent(state: Loadable<[String]>.loading, loadingMessage: "Loading", onRetry: {}) { _ in
         EmptyView()
     }
 }
 
 #Preview("Lỗi") {
-    LoadableContent(state: Loadable<[Order]>.failed(.offline), loadingMessage: "Loading orders", onRetry: {}) { _ in
+    LoadableContent(state: Loadable<[String]>.failed(.offline), loadingMessage: "Loading", onRetry: {}) { _ in
         EmptyView()
     }
 }

@@ -2,21 +2,19 @@ import Foundation
 import KVDIKit
 import KVLoggingKit
 
-// Repository keys resolve their own collaborators through `@KVDependency`, which
-// KVDIKit evaluates on read. That means the order of `prepare` calls at launch
-// cannot matter: a repository built here still sees the real API client even
-// though the client was configured after this key was declared.
+// Everything that only exists because the app has a signed-in user. Deleting
+// this file is how an app says it has none.
 
-enum OrderRepositoryKey: KVDependencyKey {
-    static let liveValue: any OrderRepositoryProtocol = {
-        guard !AppEnvironment.current.usesStubBackend else { return StubOrderRepository() }
-        @KVDependency(\.apiClient) var client
-        @KVDependency(\.logger) var logger
-        return OrderRepository(client: client, logger: logger.scoped(category: "order"))
-    }()
+// MARK: - Token store
 
-    static let testValue: any OrderRepositoryProtocol = StubOrderRepository()
+enum TokenStoreKey: KVDependencyKey {
+    static let liveValue: any TokenStoring = KeychainTokenStore.shared
+    /// Tests must not touch the real keychain: it is shared per device, so one
+    /// test's tokens would leak into the next and make order matter.
+    static let testValue: any TokenStoring = InMemoryTokenStore()
 }
+
+// MARK: - Sign-in
 
 enum AuthRepositoryKey: KVDependencyKey {
     static let liveValue: any AuthRepositoryProtocol = {
@@ -42,11 +40,13 @@ enum SignInUseCaseKey: KVDependencyKey {
     }()
 }
 
+// MARK: - Values
+
 extension KVDependencyValues {
 
-    var orderRepository: any OrderRepositoryProtocol {
-        get { self[OrderRepositoryKey.self] }
-        set { self[OrderRepositoryKey.self] = newValue }
+    var tokenStore: any TokenStoring {
+        get { self[TokenStoreKey.self] }
+        set { self[TokenStoreKey.self] = newValue }
     }
 
     var authRepository: any AuthRepositoryProtocol {

@@ -7,6 +7,10 @@ import Foundation
 // Not wrapped in `#if DEBUG`: SwiftUI previews compile in debug, but so do the
 // test targets and the sample data in `Data`'s stubs, and the cost is a few
 // bytes of literals.
+//
+// One file per entity, not one `Fixtures.swift` for all of them: an app built
+// from this template keeps the entities it needs and deletes the rest, and a
+// shared fixture file would have to be edited by hand every time.
 
 extension Order {
     static func sample(
@@ -29,12 +33,4 @@ extension Order {
         .sample(id: "2", code: "DH-0002", status: .shipping),
         .sample(id: "3", code: "DH-0003", status: .delivered)
     ]
-}
-
-extension User {
-    static let sample = User(id: "u1", name: "Nguyễn Văn A", email: "a@example.com")
-}
-
-extension AuthSession {
-    static let sample = AuthSession(user: .sample, accessToken: "access", refreshToken: "refresh")
 }

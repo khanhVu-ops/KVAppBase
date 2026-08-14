@@ -4,6 +4,7 @@ import KVToastKit
 import KVLoggingKit
 import KVLoggingSwiftUI
 import KVDIKit
+import KVNetworkit
 
 @main
 struct MyApp: App {
@@ -48,7 +49,10 @@ struct MyApp: App {
         let language = LanguageStore()
         let session = SessionController(logger: logger)
         let router = KVAppRouter(middlewares: [
-            AuthGuardMiddleware(isSignedIn: { session.isSignedIn }),
+            AuthGuardMiddleware(
+                isSignedIn: { session.isSignedIn },
+                signInRoute: AuthRoute.signIn
+            ),
             NavigationLogMiddleware(logger: logger)
         ])
         session.router = router
@@ -58,11 +62,19 @@ struct MyApp: App {
         //    everything else already resolves on read, so order is not a trap.
         KVDependencies.prepare {
             $0.logger = logger
-            $0.apiClient = APIClientFactory.make(
-                environment: .current,
-                tokenStore: KeychainTokenStore.shared,
-                logger: logger
-            )
+            // Auth is declared here, not baked into `APIClientFactory`: this is
+            // the line an app without login simply does not have, and the
+            // factory stays one file for every app. The client itself resolves
+            // on first read and picks these up then.
+            $0.authInterceptors = [
+                KVAuthInterceptor(
+                    tokenProvider: { KeychainTokenStore.shared.accessToken }
+                ),
+                TokenRefreshInterceptor(
+                    tokenStore: KeychainTokenStore.shared,
+                    environment: .current
+                )
+            ]
             $0.toast = .live(toastCenter, language: language)
             $0.router = router
         }

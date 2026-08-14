@@ -26,7 +26,7 @@ restore() {
     cp "$tmp/baseline" "$BASELINE"
     cp "$tmp/view" "$PROBE_VIEW"
     [ -f "$tmp/apperror" ] && cp "$tmp/apperror" Core/AppError.swift
-    [ -f "$tmp/rows" ] && cp "$tmp/rows" Features/Order/OrderList/OrderRows.swift
+    rm -f Features/__ProbeFormat.swift
     [ -f "$tmp/applanguage" ] && cp "$tmp/applanguage" Core/AppLanguage.swift
     rm -rf "$tmp"
 }
@@ -89,10 +89,18 @@ check "7 · String(localized:) đóng băng text ngoài cầu nối"
 cp "$tmp/apperror" Core/AppError.swift
 
 # 8 · Format số bằng .formatted() trong View.
-cp Features/Order/OrderList/OrderRows.swift "$tmp/rows"
-perl -pi -e 's/Text\(order\.total, format: \.currency\(code: "VND"\)\)/Text(order.total.formatted(.currency(code: "VND")))/' Features/Order/OrderList/OrderRows.swift
+#    Probe tự dựng file của nó: bản đầu sửa `Features/Order/OrderList/OrderRows.swift`,
+#    tức là sửa demo — và demo không tồn tại trong app tạo bằng init-base.
+cat > Features/__ProbeFormat.swift <<'SWIFT'
+import SwiftUI
+struct __ProbeFormat: View {
+    let total: Decimal
+    var body: some View { Text(total.formatted(.currency(code: "VND"))) }
+}
+#Preview { __ProbeFormat(total: 0) }
+SWIFT
 check "8 · View dùng .formatted() thay vì Text(value, format:)"
-cp "$tmp/rows" Features/Order/OrderList/OrderRows.swift
+rm -f Features/__ProbeFormat.swift
 
 # 9 · Picker thiếu một ngôn ngữ mà app có khai.
 cp Core/AppLanguage.swift "$tmp/applanguage"

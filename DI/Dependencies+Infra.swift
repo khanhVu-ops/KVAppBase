@@ -1,12 +1,16 @@
 import Foundation
 import KVDIKit
-import KVNetworkit
 import KVLoggingKit
 import KVRouterCore
 
 // Every dependency key in the app is declared in this module and nowhere else.
 // Features read keys; only the composition root writes them. That is what keeps
 // a feature from reaching into `Data` for a concrete type.
+//
+// This file holds what *every* app has, whatever it does: a logger, a router, a
+// way to toast. Networking lives in `Dependencies+Network.swift` and sign-in in
+// `Dependencies+Auth.swift` — an app with no backend deletes those two files and
+// nothing here notices, which is the whole point of splitting them.
 
 // MARK: - Logger
 
@@ -15,31 +19,6 @@ import KVRouterCore
 enum LoggerKey: KVDependencyKey {
     static let liveValue: LogClient = .disabled
     static let testValue: LogClient = .disabled
-}
-
-// MARK: - Token store
-
-enum TokenStoreKey: KVDependencyKey {
-    static let liveValue: any TokenStoring = KeychainTokenStore.shared
-    /// Tests must not touch the real keychain: it is shared per device, so one
-    /// test's tokens would leak into the next and make order matter.
-    static let testValue: any TokenStoring = InMemoryTokenStore()
-}
-
-// MARK: - API client
-
-enum APIClientKey: KVDependencyKey {
-    static let liveValue: any KVAPIClientProtocol = {
-        @KVDependency(\.tokenStore) var tokenStore
-        @KVDependency(\.logger) var logger
-        return APIClientFactory.make(
-            environment: .current,
-            tokenStore: tokenStore,
-            logger: logger
-        )
-    }()
-
-    static let testValue: any KVAPIClientProtocol = KVMockAPIClient()
 }
 
 // MARK: - Router
@@ -71,16 +50,6 @@ extension KVDependencyValues {
     var logger: LogClient {
         get { self[LoggerKey.self] }
         set { self[LoggerKey.self] = newValue }
-    }
-
-    var tokenStore: any TokenStoring {
-        get { self[TokenStoreKey.self] }
-        set { self[TokenStoreKey.self] = newValue }
-    }
-
-    var apiClient: any KVAPIClientProtocol {
-        get { self[APIClientKey.self] }
-        set { self[APIClientKey.self] = newValue }
     }
 
     var router: any KVRouting {

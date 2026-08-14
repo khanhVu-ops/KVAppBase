@@ -5,6 +5,9 @@ import Foundation
 // small, deterministic, and never reach production code paths: a key resolves
 // `testValue` only when the process is running under XCTest.
 
+// Một file một stub, không gộp: app tạo từ template giữ feature nào thì giữ stub
+// của feature đó, và một file gộp thì phải sửa tay mỗi lần.
+
 struct StubOrderRepository: OrderRepositoryProtocol {
     var orders: [Order]
     var error: AppError?
@@ -36,44 +39,5 @@ struct StubOrderRepository: OrderRepositoryProtocol {
             id: order.id, code: order.code, customerName: order.customerName,
             total: order.total, status: .cancelled, placedAt: order.placedAt
         )
-    }
-}
-
-struct StubAuthRepository: AuthRepositoryProtocol {
-    var session: AuthSession
-    var error: AppError?
-
-    init(session: AuthSession = .sample, error: AppError? = nil) {
-        self.session = session
-        self.error = error
-    }
-
-    func signIn(email: String, password: String) async throws -> AuthSession {
-        if let error { throw error }
-        return session
-    }
-
-    func signOut() async {}
-}
-
-final class InMemoryTokenStore: TokenStoring, @unchecked Sendable {
-    private let lock = NSLock()
-    private var access: String?
-    private var refresh: String?
-
-    init(access: String? = nil, refresh: String? = nil) {
-        self.access = access
-        self.refresh = refresh
-    }
-
-    var accessToken: String? { lock.withLock { access } }
-    var refreshToken: String? { lock.withLock { refresh } }
-
-    func save(access: String, refresh: String) {
-        lock.withLock { self.access = access; self.refresh = refresh }
-    }
-
-    func clear() {
-        lock.withLock { access = nil; refresh = nil }
     }
 }

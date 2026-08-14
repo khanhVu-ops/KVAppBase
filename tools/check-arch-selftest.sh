@@ -16,11 +16,21 @@ pass_count=0 fail_count=0
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
 
-# probe <rule name> <file> <line to append>
-probe() {
-    local name="$1" file="$2" line="$3"
-    cp "$file" "$tmp/backup"
-    printf '\n%s\n' "$line" >> "$file"
+skip_count=0
+
+# Probe dựng file của chính nó rồi xoá đi, không sửa file có sẵn.
+#
+# Bản đầu append vào `Domain/Entities/Order.swift`, `Features/Order/…` — tức là
+# vào demo. Điều đó chỉ đúng trong template: một app tạo bằng `init-base` không
+# có demo, và cả tám probe đầu tiên báo đỏ vì `No such file or directory` —
+# self-test đỏ trong một repo hoàn toàn sạch. Probe phải tự mang theo vi phạm
+# của nó thì mới chạy được ở mọi repo dùng bộ luật này.
+#
+# probe_file <rule name> <path> <nội dung file>
+probe_file() {
+    local name="$1" file="$2" body="$3"
+    mkdir -p "$(dirname "$file")"
+    printf '%s\n' "$body" > "$file"
     if ./tools/check-arch.sh >/dev/null 2>&1; then
         printf '\033[31m✗\033[0m %s — vi phạm KHÔNG bị bắt\n' "$name"
         fail_count=$((fail_count + 1))
@@ -28,22 +38,16 @@ probe() {
         printf '\033[32m✓\033[0m %s\n' "$name"
         pass_count=$((pass_count + 1))
     fi
-    cp "$tmp/backup" "$file"
+    rm -f "$file"
 }
 
-# probe_prepend <rule name> <file> <line to prepend>
-probe_prepend() {
-    local name="$1" file="$2" line="$3"
-    cp "$file" "$tmp/backup"
-    printf '%s\n%s' "$line" "$(cat "$file")" > "$file"
-    if ./tools/check-arch.sh >/dev/null 2>&1; then
-        printf '\033[31m✗\033[0m %s — vi phạm KHÔNG bị bắt\n' "$name"
-        fail_count=$((fail_count + 1))
-    else
-        printf '\033[32m✓\033[0m %s\n' "$name"
-        pass_count=$((pass_count + 1))
-    fi
-    cp "$tmp/backup" "$file"
+# Vài luật suy tên type từ chính source (2, 3): không có tầng Data thì không có
+# gì để vi phạm, và một probe luôn xanh ở đó là một lời chứng nhận rỗng. Bỏ qua
+# **có nêu lý do** — cùng bài học của doctor.sh: một phép kiểm báo xanh (hay đỏ)
+# cho trạng thái không liên quan sẽ dạy người ta bỏ qua màu của nó.
+skip() {
+    printf '\033[33m–\033[0m %s — bỏ qua: %s\n' "$1" "$2"
+    skip_count=$((skip_count + 1))
 }
 
 echo "Kiểm tra check-arch.sh có thật sự bắt được vi phạm:"
@@ -55,32 +59,45 @@ if ! ./tools/check-arch.sh >/dev/null 2>&1; then
     exit 1
 fi
 
-probe_prepend "1 · Domain import framework" \
-    Domain/Entities/Order.swift "import SwiftUI"
+probe_file "1 · Domain import framework" \
+    Domain/__Probe.swift "import SwiftUI"
 
-probe "2 · Domain dùng type của Data" \
-    Domain/Entities/User.swift "func __probe() { _ = OrderDTO.self }"
+# Luật 2 và 3 đọc tên type khai trong Data/ rồi tìm chúng ở nơi không được biết.
+# Nên probe phải dựng cả hai đầu: một type trong Data, và một chỗ dùng nó.
+if [ -d Data ]; then
+    printf 'struct ZZProbeDTO { let id: String }\n' > Data/ZZProbeDTO.swift
 
-probe "3 · Feature dùng type của Data" \
-    Features/Order/OrderRoute.swift "func __probe() { _ = OrderRepository.self }"
+    probe_file "2 · Domain dùng type của Data" \
+        Domain/__Probe.swift "func __probe() { _ = ZZProbeDTO.self }"
 
-# Probe phải là code thật, không phải comment — rule 4 cố tình bỏ qua comment.
-probe "4 · ViewModel gọi pushView" \
-    Features/Order/OrderList/OrderListViewModel.swift \
-    "func __probe() { router.pushView { } }"
+    probe_file "3 · Feature dùng type của Data" \
+        Features/__Probe.swift "func __probe() { _ = ZZProbeDTO.self }"
 
-probe "5 · Transport type lọt ra Feature" \
-    Features/Order/OrderRoute.swift "func __probe() -> KVAPIClientError? { nil }"
+    rm -f Data/ZZProbeDTO.swift
+else
+    skip "2 · Domain dùng type của Data" "app không có tầng Data"
+    skip "3 · Feature dùng type của Data" "app không có tầng Data"
+fi
 
-probe "6 · Color literal trong Feature" \
-    Features/Order/OrderList/OrderRows.swift "let __probe = Color(red: 1, green: 0, blue: 0)"
+# Probe phải là code thật, không phải comment — luật 4 cố tình bỏ qua comment.
+probe_file "4 · ViewModel gọi pushView" \
+    Features/__ProbeViewModel.swift "func __probe() { router.pushView { } }"
 
-probe "7 · View con giữ ViewModel" \
-    Features/Order/OrderList/OrderRows.swift \
-    "struct __Probe: View { let viewModel: OrderListViewModel; var body: some View { EmptyView() } }"
+probe_file "5 · Transport type lọt ra Feature" \
+    Features/__Probe.swift "func __probe() -> KVAPIClientError? { nil }"
 
-probe "8 · Dependency key ngoài DI/" \
-    Features/Order/OrderRoute.swift \
+probe_file "6 · Color literal trong Feature" \
+    Features/__Probe.swift "let __probe = Color(red: 1, green: 0, blue: 0)"
+
+# `#Preview` trong chính probe là có chủ đích: thiếu nó thì luật 11 cũng đỏ, và
+# probe này sẽ xanh vì lý do của luật khác — đúng kiểu chứng nhận rỗng mà cả file
+# này sinh ra để chặn.
+probe_file "7 · View con giữ ViewModel" Features/__Probe.swift \
+"import SwiftUI
+struct __Probe: View { let viewModel: ZZProbeViewModel; var body: some View { EmptyView() } }
+#Preview { EmptyView() }"
+
+probe_file "8 · Dependency key ngoài DI/" Features/__Probe.swift \
     "enum __ProbeKey: KVDependencyKey { static let liveValue = 0 }"
 
 # Luật 9 và 10 không kiểm được bằng cách thêm một dòng vào file Swift: một cái là
@@ -150,3 +167,5 @@ if [ "$fail_count" -gt 0 ]; then
     exit 1
 fi
 printf '\033[32mCả %d phép kiểm đều bắt được vi phạm.\033[0m\n' "$pass_count"
+[ "$skip_count" -gt 0 ] && printf '\033[33m%d phép kiểm bỏ qua vì app không có tầng tương ứng.\033[0m\n' "$skip_count"
+exit 0
