@@ -161,6 +161,54 @@ SWIFT
 }
 probe_preview
 
+# Luật 12: hai nửa, hai probe. Một luật hai nửa mà chỉ probe một nửa thì nửa kia
+# được chứng nhận miễn phí — đúng bài học của luật 10.
+probe_sheet_overlay() {
+    cat > DesignSystem/Components/__ProbeOverlaySheet.swift <<'SWIFT'
+import SwiftUI
+struct __ProbeContentSheet: View { var body: some View { EmptyView() } }
+struct __ProbeOverlayHost: View {
+    var body: some View {
+        Color.clear.overlay { __ProbeContentSheet() }
+    }
+}
+#Preview { __ProbeOverlayHost() }
+SWIFT
+    if ./tools/check-arch.sh >/dev/null 2>&1; then
+        printf '\033[31m✗\033[0m 12a · Sheet dựng trong .overlay — KHÔNG bị bắt\n'
+        fail_count=$((fail_count + 1))
+    else
+        printf '\033[32m✓\033[0m 12a · Sheet dựng trong .overlay\n'
+        pass_count=$((pass_count + 1))
+    fi
+    rm -f DesignSystem/Components/__ProbeOverlaySheet.swift
+}
+probe_sheet_overlay
+
+# Nửa thứ hai: `.sheet` dựng một View mà không đặt nền presentation.
+probe_sheet() {
+    cat > DesignSystem/Components/__ProbeSheetHost.swift <<'SWIFT'
+import SwiftUI
+struct __ProbeSheet: View { var body: some View { EmptyView() } }
+struct __ProbeSheetHost: View {
+    @State private var shown = false
+    var body: some View {
+        Color.clear.sheet(isPresented: $shown) { __ProbeSheet() }
+    }
+}
+#Preview { EmptyView() }
+SWIFT
+    if ./tools/check-arch.sh >/dev/null 2>&1; then
+        printf '\033[31m✗\033[0m 12b · Sheet thiếu nền presentation — vi phạm KHÔNG bị bắt\n'
+        fail_count=$((fail_count + 1))
+    else
+        printf '\033[32m✓\033[0m 12b · Sheet thiếu nền presentation\n'
+        pass_count=$((pass_count + 1))
+    fi
+    rm -f DesignSystem/Components/__ProbeSheetHost.swift
+}
+probe_sheet
+
 echo
 if [ "$fail_count" -gt 0 ]; then
     printf '\033[31m%d/%d phép kiểm không bắt được vi phạm.\033[0m\n' "$fail_count" "$((pass_count + fail_count))"

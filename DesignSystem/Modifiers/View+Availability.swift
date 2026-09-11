@@ -67,4 +67,15 @@ extension View {
     func sheetDragIndicator(_ visibility: Visibility = .visible) -> some View {
         presentationDragIndicator(visibility)
     }
+
+    /// `presentationCornerRadius` chỉ có từ **iOS 16.4**. Nhánh cũ giữ nguyên sheet
+    /// của hệ thống — mất bo góc tuỳ ý còn hơn mất gesture và accessibility.
+    @ViewBuilder
+    func sheetCornerRadius(_ radius: CGFloat) -> some View {
+        if #available(iOS 16.4, *) {
+            self.presentationCornerRadius(radius)
+        } else {
+            self
+        }
+    }
 }

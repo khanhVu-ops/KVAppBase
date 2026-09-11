@@ -254,6 +254,148 @@ else
     pass "Mọi View đều có #Preview"
 fi
 
+# ---------------------------------------------------------------------------
+# 12. Sheet là `.sheet` của hệ thống, và nó phải có nền presentation.
+#     Hai nửa của cùng một lỗi, và cả hai đã xảy ra thật trong repo này.
+#
+#     Nửa thứ nhất — `overlay { scrim + content }` thay cho `.sheet`. Nó *trông*
+#     đúng và thiếu hết những gì UIKit làm sẵn: gạt xuống để đóng, đà quán tính,
+#     bàn phím đẩy sheet lên, VoiceOver coi phần dưới sheet là không chạm được,
+#     `Reduce Motion`. Dựng lại từng cái đó là dựng lại
+#     `UISheetPresentationController`. Ba lý do từng khiến người ta tránh `.sheet`
+#     đều đã có lời giải trong repo: `sheetFitHeight()` cho chiều cao,
+#     `sheetDragIndicator()` cho vạch kéo, và lớp mờ thì hệ thống tự vẽ.
+#
+#     Nửa thứ hai — `.sheet` mà không đặt nền presentation. Detent cao bằng nội
+#     dung, nhưng tấm sheet còn dải safe area dưới (home indicator) mà nội dung
+#     không với tới. Không đặt nền thì dải đó là màu hệ thống, và nó lộ ra thành
+#     một vệt khác màu dưới đáy — nhìn như card bị hụt. Trên iOS 16.0
+#     `sheetBackground` tự hạ xuống `.background`, nên gọi nó là an toàn ở mọi bản.
+#
+#     Luật suy từ source, không có danh sách tay: view do UIKit sở hữu — khai
+#     `UIViewControllerRepresentable` / `UIViewRepresentable` — được miễn, vì
+#     `ShareSheet` và `MailComposerView` mang chrome của UIKit và ta không sơn nó.
+#
+#     `.fullScreenCover` **không** bị kiểm ở đây: nó phủ kín màn nên không có dải
+#     nào hở. Ngoại lệ đáng biết là màn có nền bằng **ảnh** — ảnh cần một nhịp để
+#     giải mã, và trong nhịp đó thứ hiện ra là nền presentation; một màn có nền
+#     bằng ảnh thì nên đặt nền presentation cùng màu với ảnh.
+# ---------------------------------------------------------------------------
+sheet_report=$(/usr/bin/python3 - <<'PYEOF'
+import io, os, re, sys
+
+roots = [r for r in ("Features", "DesignSystem") if os.path.isdir(r)]
+files = []
+for root in roots:
+    for dirpath, _, names in os.walk(root):
+        files += [os.path.join(dirpath, n) for n in names if n.endswith(".swift")]
+
+DECL = re.compile(
+    r"^\s*(?:public |internal |private |fileprivate )?"
+    r"(?:struct|final class|class) ([A-Za-z_][A-Za-z0-9_]*)(?:<[^>]*>)? *:([^{]*)"
+)
+
+app_views, uikit_owned = set(), set()
+for f in files:
+    for line in io.open(f, encoding="utf-8", errors="ignore"):
+        m = DECL.match(line)
+        if not m:
+            continue
+        name, conformances = m.group(1), m.group(2)
+        if "Representable" in conformances:
+            uikit_owned.add(name)
+        elif re.search(r"\bView\b", conformances):
+            app_views.add(name)
+app_views -= uikit_owned
+
+# Nền presentation đã được đặt, trực tiếp hay qua helper của DesignSystem.
+BACKGROUND = re.compile(r"\.(sheetBackground|presentationBackground)\(")
+# `.sheet` phải là **lời gọi** — `\.sheet\s*\(`. Bản đầu nhận cả `[({]` và nó
+# khớp `switch viewModel.state.sheet {`, tức một property tên `sheet` trong
+# `switch`, rồi báo `CreateVideoView` vi phạm trong khi màn đó dùng `.bottomSheet`
+# đúng chuẩn. `.overlay` thì cả hai dạng đều là lời gọi thật.
+PRESENT = re.compile(r"\.sheet\s*\(|\.overlay\s*[({]")
+
+def strip_comments(lines):
+    """Comment thành dòng rỗng — giữ nguyên số dòng để báo đúng vị trí.
+
+    Luật này từng đỏ vì một **ví dụ trong doc comment** của chính
+    View+SheetFitHeight.swift: khối swift trong docstring có một lời gọi sheet,
+    và nó được đọc như code thật. Luật 4 đã bỏ qua comment từ đầu; luật này thì
+    quên, và nó chỉ lộ ra ở repo mà tên View trong ví dụ có thật.
+
+    (Docstring này cố tình không có dấu backtick: cả khối Python nằm trong một
+    $(...) của bash, nên một backtick lẻ làm bash đi tìm dấu đóng và báo
+    "unexpected EOF".)
+    """
+    out, in_block = [], False
+    for line in lines:
+        s = line.strip()
+        if in_block:
+            out.append("")
+            if "*/" in s:
+                in_block = False
+            continue
+        if s.startswith("/*"):
+            out.append("")
+            if "*/" not in s:
+                in_block = True
+            continue
+        out.append("" if s.startswith("//") else line)
+    return out
+
+
+def block_after(lines, i):
+    """Chuỗi từ dòng i tới khi ngoặc của modifier đó đóng lại."""
+    depth, out = 0, []
+    started = False
+    for line in lines[i:]:
+        out.append(line)
+        for ch in line:
+            if ch in "({":
+                depth += 1
+                started = True
+            elif ch in ")}":
+                depth -= 1
+        if started and depth <= 0:
+            break
+    return "\n".join(out)
+
+problems = []
+for f in files:
+    lines = strip_comments(io.open(f, encoding="utf-8", errors="ignore").read().split("\n"))
+    for i, line in enumerate(lines):
+        m = PRESENT.search(line)
+        if not m:
+            continue
+        kind = "overlay" if ".overlay" in m.group(0) else "sheet"
+        block = block_after(lines, i)
+        used = {n for n in app_views if re.search(r"\b%s\s*\(" % re.escape(n), block)}
+        sheets = {n for n in used if n.endswith("Sheet")}
+        if kind == "overlay":
+            if sheets:
+                problems.append("%s:%d — %s dựng trong .overlay, phải qua .sheet/bottomSheet"
+                                % (f, i + 1, ", ".join(sorted(sheets))))
+        elif used and not BACKGROUND.search(block) and ".sheetFitHeight()" not in block:
+            # Không có nền, và cũng không phải một sheet đã đo chiều cao — tức là
+            # chưa đi qua bộ modifier nào của repo.
+            problems.append("%s:%d — .sheet dựng %s mà không đặt nền presentation"
+                            % (f, i + 1, ", ".join(sorted(used))))
+        elif used and not BACKGROUND.search(block):
+            problems.append("%s:%d — .sheet dựng %s có sheetFitHeight nhưng thiếu sheetBackground"
+                            % (f, i + 1, ", ".join(sorted(used))))
+
+print("\n".join(problems))
+PYEOF
+)
+if [ -n "$sheet_report" ]; then
+    fail "Sheet không đi qua .sheet, hoặc thiếu nền presentation" "$sheet_report" \
+        "dùng .bottomSheet(isPresented:onDismiss:) — nó đã gắn sẵn cả bộ" \
+        "hoặc tự xếp: .fixedSize → .sheetFitHeight() → .sheetDragIndicator() → .sheetBackground(...)"
+else
+    pass "Sheet đi qua .sheet và có nền presentation"
+fi
+
 echo
 if [ "$failures" -gt 0 ]; then
     printf '\033[31m%d architecture rule(s) violated.\033[0m\n' "$failures"

@@ -37,7 +37,11 @@ struct OrderListView: View {
             }
         }
         .sheet(isPresented: $isLanguagePickerPresented) {
+            // Nền presentation là bắt buộc, kể cả khi sheet chiếm gần cả màn: dải
+            // safe area dưới mà nội dung không với tới sẽ mang màu mặc định của hệ
+            // thống và lộ ra thành một vệt khác màu. Xem luật 12 của check-arch.sh.
             LanguagePickerView()
+                .sheetBackground(AppColor.Surface.background)
         }
     }
 

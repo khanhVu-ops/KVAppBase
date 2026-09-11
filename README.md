@@ -63,7 +63,7 @@ cùng module thấy nhau không cần `import`. `tools/check-arch.sh` là thứ 
 và nó suy luật từ chính source — đọc tên type khai báo dưới `Data/` rồi tìm chúng
 ở nơi không được biết, nên không cần danh sách bảo trì tay.
 
-`tools/check-arch-selftest.sh` chứng minh 11 luật đó **vẫn bắt được vi phạm**: nó
+`tools/check-arch-selftest.sh` chứng minh 12 luật đó **vẫn bắt được vi phạm**: nó
 tạo một vi phạm thật cho từng luật rồi kiểm tra script có fail. Một luật im lặng
 ngừng khớp còn tệ hơn không có luật.
 
@@ -93,8 +93,8 @@ xem `ios-architecture/references/ios16.md`.
 
 ```bash
 xcodegen generate                  # sau khi thêm/di chuyển BẤT KỲ file nào
-./tools/check-arch.sh              # 11 luật phân tầng
-./tools/check-arch-selftest.sh     # chứng minh 11 luật đó còn hiệu lực
+./tools/check-arch.sh              # 12 luật phân tầng
+./tools/check-arch-selftest.sh     # chứng minh 12 luật đó còn hiệu lực
 ./tools/check-l10n.sh              # text mới đã dịch đủ 19 ngôn ngữ chưa
 ./tools/verify.sh                  # tất cả + build + test
 ```
