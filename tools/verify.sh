@@ -72,6 +72,12 @@ step "Localization"
 ./tools/check-l10n-selftest.sh >/dev/null || die "check-l10n.sh không còn bắt được vi phạm"
 echo "  self-test cho check-l10n: OK"
 
+step "Cấu hình VTMonetSDK (ads + IAP)"
+# No-op khi app chưa cài VTMonetSDK (không có remote_config_defaults.plist). Khi có
+# rồi thì đây là chỗ bắt `monet_sdk_config` parse trượt — thiếu một dấu phẩy là mất
+# **cả** cấu hình ads, và tầng app không log gì cả.
+./tools/check-monet-config.sh || die "Cấu hình ads/IAP sai"
+
 step "Sinh lại project (XcodeGen)"
 if command -v xcodegen >/dev/null; then
     xcodegen generate --quiet || die "xcodegen generate thất bại"

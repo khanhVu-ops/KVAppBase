@@ -1,0 +1,220 @@
+{
+  "_comment": "TEST CONFIG — toàn bộ ad unit là ID test công khai của Google (ca-app-pub-3940256099942544/...). Dùng để chạy ads trên máy khi chưa có placement chuẩn từ PO. KHÔNG build release bằng config này: nó ship app không có doanh thu. Các space intro (splash_* language_* ob*) là tên SDK tự yêu cầu — giữ nguyên. Các space app (home_* setting_na feed_na*) là ví dụ — đổi theo bảng kịch bản của app.",
+
+  "ads_splash": {
+    "ads_order": "open,inter,native",
+    "timeout": 25000,
+    "delay_show_ad_full": 5000,
+    "openAd": {
+      "admob_id_1": "ca-app-pub-3940256099942544/5575463023",
+      "admob_id_2": "ca-app-pub-3940256099942544/5575463023",
+      "admob_id_3": "ca-app-pub-3940256099942544/5575463023",
+      "is_enable": true,
+      "timeout": 15000
+    },
+    "interstitials": {
+      "admob_id_1": "ca-app-pub-3940256099942544/4411468910",
+      "admob_id_2": "ca-app-pub-3940256099942544/4411468910",
+      "admob_id_3": "ca-app-pub-3940256099942544/4411468910",
+      "is_enable": true,
+      "timeout": 15000
+    }
+  },
+
+  "ads_resume_open": {
+    "is_enable": true,
+    "load_position": "start",
+    "welcome_timeout": 8000,
+    "time_gap": 1000,
+    "step_gap": 0,
+    "admob_id_1": "ca-app-pub-3940256099942544/5575463023",
+    "admob_id_2": "ca-app-pub-3940256099942544/5575463023",
+    "admob_id_3": "ca-app-pub-3940256099942544/5575463023"
+  },
+
+  "ads_inter": {
+    "is_enable": true,
+    "is_show_loading_view": true,
+    "time_gap": 1000,
+    "step_gap": 1,
+    "admob_id_1": "ca-app-pub-3940256099942544/4411468910",
+    "admob_id_2": "ca-app-pub-3940256099942544/4411468910",
+    "admob_id_3": "ca-app-pub-3940256099942544/4411468910",
+    "spaces": [
+      { "name": "splash1_in", "is_enable": true },
+      { "name": "ob_in", "is_enable": true },
+      { "name": "inapp_in", "is_enable": true }
+    ]
+  },
+
+  "ads_rewarded": {
+    "is_enable": true,
+    "admob_id": "ca-app-pub-3940256099942544/1712485313"
+  },
+
+  "ads_banner": {
+    "is_enable": true,
+    "spaces": [
+      {
+        "type": "banner_adaptive",
+        "name": "splash_ban",
+        "banner_position": "bottom",
+        "admob_id_1": "ca-app-pub-3940256099942544/2934735716",
+        "admob_id_2": "ca-app-pub-3940256099942544/2934735716",
+        "admob_id_3": "ca-app-pub-3940256099942544/2934735716",
+        "is_enable": true,
+        "time_auto_reload": 10000
+      },
+      {
+        "type": "banner_adaptive",
+        "name": "language_ban",
+        "banner_position": "bottom",
+        "admob_id_1": "ca-app-pub-3940256099942544/2934735716",
+        "admob_id_2": "ca-app-pub-3940256099942544/2934735716",
+        "admob_id_3": "ca-app-pub-3940256099942544/2934735716",
+        "is_enable": true,
+        "time_auto_reload": 10000
+      },
+      {
+        "type": "banner_adaptive",
+        "name": "home_ban",
+        "banner_position": "bottom",
+        "admob_id_1": "ca-app-pub-3940256099942544/2934735716",
+        "admob_id_2": "ca-app-pub-3940256099942544/2934735716",
+        "admob_id_3": "ca-app-pub-3940256099942544/2934735716",
+        "is_enable": true,
+        "time_auto_reload": 10000
+      }
+    ]
+  },
+
+  "ads_native": {
+    "is_enable": true,
+    "default_background_color": "#FFFFFF",
+    "header_text_color": "#000000",
+    "body_text_color": "#000000",
+    "cta_color": "#008001",
+    "media_bg_color": "#010101",
+    "cta_text_size": 14,
+    "spaces": [
+      {
+        "type": "360x250_cta_bot",
+        "name": "splash_native",
+        "admob_id_1": "ca-app-pub-3940256099942544/3986624511",
+        "admob_id_2": "ca-app-pub-3940256099942544/3986624511",
+        "admob_id_3": "ca-app-pub-3940256099942544/3986624511",
+        "is_enable": true,
+        "time_auto_reload": 15000
+      },
+      {
+        "type": "360x250_cta_bot",
+        "name": "language_na",
+        "admob_id_1": "ca-app-pub-3940256099942544/3986624511",
+        "admob_id_2": "ca-app-pub-3940256099942544/3986624511",
+        "admob_id_3": "ca-app-pub-3940256099942544/3986624511",
+        "is_enable": true,
+        "time_auto_reload": 15000
+      },
+      {
+        "type": "360x250_cta_bot",
+        "name": "language1_na",
+        "admob_id_1": "ca-app-pub-3940256099942544/3986624511",
+        "admob_id_2": "ca-app-pub-3940256099942544/3986624511",
+        "admob_id_3": "ca-app-pub-3940256099942544/3986624511",
+        "is_enable": true,
+        "time_auto_reload": 15000
+      },
+      {
+        "type": "360x250_cta_bot",
+        "name": "language2_na",
+        "admob_id_1": "ca-app-pub-3940256099942544/3986624511",
+        "admob_id_2": "ca-app-pub-3940256099942544/3986624511",
+        "admob_id_3": "ca-app-pub-3940256099942544/3986624511",
+        "is_enable": true,
+        "time_auto_reload": 15000
+      },
+      {
+        "type": "360x250_cta_bot",
+        "name": "ob1_na",
+        "admob_id_1": "ca-app-pub-3940256099942544/3986624511",
+        "admob_id_2": "ca-app-pub-3940256099942544/3986624511",
+        "admob_id_3": "ca-app-pub-3940256099942544/3986624511",
+        "is_enable": true,
+        "time_auto_reload": 15000
+      },
+      {
+        "type": "360x250_cta_bot",
+        "name": "ob2_na",
+        "admob_id_1": "ca-app-pub-3940256099942544/3986624511",
+        "admob_id_2": "ca-app-pub-3940256099942544/3986624511",
+        "admob_id_3": "ca-app-pub-3940256099942544/3986624511",
+        "is_enable": true,
+        "time_auto_reload": 15000
+      },
+      {
+        "type": "360x250_cta_bot",
+        "name": "ob3_na",
+        "admob_id_1": "ca-app-pub-3940256099942544/3986624511",
+        "admob_id_2": "ca-app-pub-3940256099942544/3986624511",
+        "admob_id_3": "ca-app-pub-3940256099942544/3986624511",
+        "is_enable": true,
+        "time_auto_reload": 15000
+      },
+      {
+        "type": "full",
+        "name": "ob_full_na",
+        "admob_id_1": "ca-app-pub-3940256099942544/2521693316",
+        "admob_id_2": "ca-app-pub-3940256099942544/2521693316",
+        "admob_id_3": "ca-app-pub-3940256099942544/2521693316",
+        "is_enable": true,
+        "time_auto_reload": 15000
+      },
+
+      {
+        "type": "360x250_cta_bot",
+        "name": "home_na",
+        "admob_id_1": "ca-app-pub-3940256099942544/3986624511",
+        "admob_id_2": "ca-app-pub-3940256099942544/3986624511",
+        "admob_id_3": "ca-app-pub-3940256099942544/3986624511",
+        "is_enable": true,
+        "time_auto_reload": 15000
+      },
+      {
+        "type": "360x140_cta_bot",
+        "name": "setting_na",
+        "admob_id_1": "ca-app-pub-3940256099942544/3986624511",
+        "admob_id_2": "ca-app-pub-3940256099942544/3986624511",
+        "admob_id_3": "ca-app-pub-3940256099942544/3986624511",
+        "is_enable": true,
+        "time_auto_reload": 15000
+      },
+      {
+        "type": "360x250_cta_bot",
+        "name": "feed_na",
+        "admob_id_1": "ca-app-pub-3940256099942544/3986624511",
+        "admob_id_2": "ca-app-pub-3940256099942544/3986624511",
+        "admob_id_3": "ca-app-pub-3940256099942544/3986624511",
+        "is_enable": true,
+        "time_auto_reload": 15000
+      },
+      {
+        "type": "360x250_cta_bot",
+        "name": "feed_na2",
+        "admob_id_1": "ca-app-pub-3940256099942544/3986624511",
+        "admob_id_2": "ca-app-pub-3940256099942544/3986624511",
+        "admob_id_3": "ca-app-pub-3940256099942544/3986624511",
+        "is_enable": true,
+        "time_auto_reload": 15000
+      },
+      {
+        "type": "360x250_cta_bot",
+        "name": "feed_na3",
+        "admob_id_1": "ca-app-pub-3940256099942544/3986624511",
+        "admob_id_2": "ca-app-pub-3940256099942544/3986624511",
+        "admob_id_3": "ca-app-pub-3940256099942544/3986624511",
+        "is_enable": true,
+        "time_auto_reload": 15000
+      }
+    ]
+  }
+}

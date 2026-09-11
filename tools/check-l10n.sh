@@ -85,7 +85,7 @@ pass "en.lproj/Localizable.strings hợp lệ"
 # ---------------------------------------------------------------------------
 # 2. Đủ ngôn ngữ, cùng một bộ key, không giá trị rỗng.
 # ---------------------------------------------------------------------------
-report=$(LANGUAGES="$LANGUAGES" STRINGS_DIR="$STRINGS_DIR" python3 <<'PYEOF'
+report=$(LANGUAGES="$LANGUAGES" STRINGS_DIR="$STRINGS_DIR" /usr/bin/python3 <<'PYEOF'
 import os, plistlib, subprocess
 
 langs = os.environ["LANGUAGES"].split()
@@ -137,7 +137,7 @@ else
 fi
 
 keys=$(plutil -convert json -o - "$SOURCE_STRINGS" \
-    | python3 -c "import json,sys; print('\n'.join(json.load(sys.stdin).keys()))")
+    | /usr/bin/python3 -c "import json,sys; print('\n'.join(json.load(sys.stdin).keys()))")
 [ -f "$BASELINE" ] && baseline=$(grep -v '^#' "$BASELINE" | grep -v '^$') || baseline=""
 
 # ---------------------------------------------------------------------------
